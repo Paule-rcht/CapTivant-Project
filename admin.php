@@ -13,6 +13,7 @@ $boats = $pdo->query("SELECT id, titre FROM bateaux")->fetchAll(PDO::FETCH_KEY_P
 // Users
 $users = $pdo->query("SELECT id, CONCAT(first_name, ' ', last_name) AS full_name FROM users")->fetchAll(PDO::FETCH_KEY_PAIR);
 
+$ignoredTables = ['favoris', 'historique', 'contact_messages'];
 
 $readOnlyTables = ['contact_messages', 'historique'];
 $signalableTables = ['reviews'];
@@ -43,10 +44,11 @@ $tableLabels = [
     'reviews' => 'Commentaires utilisateurs',
     'contact_messages' => 'Messages utilisateurs',
     'faq' => 'Foire aux questions',
-    'a_propos' => 'Description',
+    'a_propos' => 'Description du site',
     'cgu' => 'CGU',
     'historique' => 'Historique des réservations',
 ];
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -98,12 +100,15 @@ $tableLabels = [
     <div class="menu-tables" style="text-align: center;">
         <h2 style="color: #f29066;">Choisissez une catégorie</h2>
         <?php foreach ($tables as $tableName): ?>
+            <?php if (in_array($tableName, $ignoredTables)) continue; ?>
             <button onclick="afficherTable('<?= htmlspecialchars($tableName) ?>')" class="btn">
                 <?= htmlspecialchars($tableLabels[$tableName] ?? $tableName) ?>
             </button>
         <?php endforeach; ?>
     </div>
     <?php foreach ($tables as $tableName): ?>
+        <?php if (in_array($tableName, $ignoredTables)) continue; ?>
+
         <?php
         $columns = $pdo->query("DESCRIBE `$tableName`")->fetchAll(PDO::FETCH_COLUMN);
         $ignored = [

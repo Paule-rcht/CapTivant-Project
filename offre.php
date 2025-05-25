@@ -98,9 +98,9 @@ if ($depart && $arrivee) {
     </div>
     <a id="a-propos-link" href="a-propos.php" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>

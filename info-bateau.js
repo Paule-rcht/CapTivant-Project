@@ -1,4 +1,3 @@
-// ======== Données des bateaux ========
 const bateaux = [
     {
         id: 1,
@@ -6,7 +5,7 @@ const bateaux = [
         image1: "images/bateau1.png",
         image2: "images/bateau2.png",
         personnes: "3 personnes",
-        cabines: "1 cabines",
+        cabines: "1 cabine",
         longueur: "6 mètres",
         prix: "1695€/semaine",
         port: "Vannes",
@@ -48,58 +47,87 @@ const bateaux = [
         port: "Marseille",
         categorie: "moteur",
     },
+    {
+        id: 6,
+        titre: "White Shark - 2021",
+        image1: "images/whiteshark1.png",
+        image2: "images/whiteshark2.jpg",
+        personnes: "8 personnes",
+        cabines: "1 cabine",
+        longueur: "7 mètres",
+        prix: "2695€/semaine",
+        port: "Concarneau",
+        categorie: "moteur",
+    },
+    {
+        id: 7,
+        titre: "Béténeau - 1985",
+        image1: "images/Bénéteau1.png",
+        image2: "images/Bénéteau2.png",
+        personnes: "6 personnes",
+        cabines: "2 cabines",
+        longueur: "9 mètres",
+        prix: "1500€/semaine",
+        port: "Lorient",
+        categorie: "voile",
+    },
+    {
+        id: 8,
+        titre: "Voilier - 2015",
+        image1: "images/voilier1.png",
+        image2: "images/voilier2.png",
+        personnes: "8 personnes",
+        cabines: "3 cabines",
+        longueur: "11 mètres",
+        prix: "2001€/semaine",
+        port: "Marseille",
+        categorie: "voile",
+    },
+    {
+        id: 9,
+        titre: "Dream 52 - 2002",
+        image1: "images/dream1.png",
+        image2: "images/dream2.png",
+        personnes: "5 personnes",
+        cabines: "2 cabines",
+        longueur: "16 mètres",
+        prix: "2240€/semaine",
+        port: "Vannes",
+        categorie: "voile",
+    },
+    {
+        id: 10,
+        titre: "Ocean Breeze 45 - 2010",
+        image1: "images/oceanbreeze1.png",
+        image2: "images/oceaanbreeze2.png",
+        personnes: "6 personnes",
+        cabines: "3 cabines",
+        longueur: "14 mètres",
+        prix: "1980€/semaine",
+        port: "Bordeaux",
+        categorie: "voile",
+    },
+    {
+        id: 11,
+        titre: "Speed Cruiser 38 - 2015",
+        image1: "images/speedcruiser1.png",
+        image2: "images/speedcruiser2.png",
+        personnes: "4 personnes",
+        cabines: "1 cabine",
+        longueur: "12 mètres",
+        prix: "2750€/semaine",
+        port: "Bordeaux",
+        categorie: "moteur",
+    }
 ];
 
-const bateauxEN = [
-    {
-        id: 1,
-        titre: "Motor Boat - 2022",
-        image1: "images/bateau1.png",
-        image2: "images/bateau2.png",
-        personnes: "3 people",
-        cabines: "1 cabins",
-        longueur: "6 meters",
-        prix: "1695€/week",
-        port: "Vannes",
-        categorie: "moteur",
-    },
-    {
-        id: 2,
-        titre: "Lagoon 42 - 2020",
-        image1: "images/catamaran1.png",
-        image2: "images/catamaran2.png",
-        personnes: "12 people",
-        cabines: "5 cabins",
-        longueur: "21 meters",
-        prix: "3995€/week",
-        port: "Brest",
-        categorie: "voile",
-    },
-    {
-        id: 3,
-        titre: "Sailing boat",
-        image1: "images/bateau-voile1.png",
-        image2: "images/bateau-voile2.png",
-        personnes: "8 people",
-        cabines: "3 cabins",
-        longueur: "35 meters",
-        prix: "3695€/week",
-        port: "Concarneau",
-        categorie: "voile",
-    },
-    {
-        id: 4,
-        titre: "Motor Boat",
-        image1: "images/moteur1.png",
-        image2: "images/moteur2.png",
-        personnes: "4 people",
-        cabines: "2 cabins",
-        longueur: "20 meters",
-        prix: "2185€/week",
-        port: "Marseille",
-        categorie: "moteur",
-    },
-];
+const bateauxEN = bateaux.map(b => ({
+    ...b,
+    personnes: b.personnes.replace("personnes", "people").replace("personne", "person"),
+    cabines: b.cabines.replace("cabines", "cabins").replace("cabine", "cabin"),
+    longueur: b.longueur.replace("mètres", "meters").replace("mètre", "meter"),
+    prix: b.prix.replace("/semaine", "/week")
+}));
 
 
 const AProposFR = {
@@ -257,7 +285,11 @@ const HistoriqueFR = {
     popup_commentaire: "Votre commentaire...",
     popup_label_note: "Note",
     popup_bouton_valider: "Valider l'avis",
-    popup_bouton_fermer: "Fermer"
+    popup_bouton_fermer: "Fermer",
+    laisserAvis: "Vous n'avez pas encore laissé d'avis pour ce bateau.",
+    alerte_champs_vides: "Merci de remplir tous les champs.",
+    alerte_succes: "Merci ! Votre avis a été enregistré.",
+    alerte_erreur: "Une erreur est survenue lors de l’envoi de l’avis."
 };
 
 const HistoriqueEN = {
@@ -278,7 +310,11 @@ const HistoriqueEN = {
     popup_commentaire: "Your comment...",
     popup_label_note: "Rating",
     popup_bouton_valider: "Submit review",
-    popup_bouton_fermer: "Close"
+    popup_bouton_fermer: "Close",
+    laisserAvis: "You have not given a review for this boat yet.",
+    alerte_champs_vides: "Please fill in all fields.",
+    alerte_succes: "Thank you! Your review has been submitted.",
+    alerte_erreur: "An error occurred while submitting your review."
 };
 
 const InfoBateauFR = {
@@ -421,6 +457,9 @@ const AccueilEN = {
 
 // Texte multilingue pour la page Paiement
 const PaiementFR = {
+    titre: "Paiement",
+    offre: "Offre",
+    reservation: "Réservation",
     selectLabel: "Sélectionnez le nombre de personnes :",
     enfantLabel: "Enfant à bord",
     optionsTitre: "Options supplémentaires",
@@ -430,14 +469,25 @@ const PaiementFR = {
     choisirNombre: "Choisissez un nombre",
     total: "Total à payer :",
     payer: "Payer",
+    personneSingulier: " personne",
+    personnePluriel: " personnes",
     dejaReserve: "Vous avez déjà réservé ce bateau.",
     merci: "Merci d'avoir réservé chez nous ! À bientôt",
-    titre: "Paiement",
-    offre: "Offre",
-    reservation: "Réservation"
+    port: "Port :",
+    personnes: "Nombre de personnes maximum :",
+    cabines: "Cabines :",
+    longueur: "Longueur :",
+    prix: "Prix :",
+    avis: "Avis :",
+    date_debut: "Date de départ :",
+    date_fin: "Date de retour :",
+    champsObligatoires: "Veuillez remplir toutes les informations obligatoires.",
 };
 
 const PaiementEN = {
+    titre: "Payment",
+    offre: "Offer",
+    reservation: "Booking",
     selectLabel: "Select the number of people:",
     enfantLabel: "Child on board",
     optionsTitre: "Additional options",
@@ -447,31 +497,58 @@ const PaiementEN = {
     choisirNombre: "Choose a number",
     total: "Total to pay:",
     payer: "Pay",
+    personneSingulier: " person",
+    personnePluriel: " people",
     dejaReserve: "You have already booked this boat.",
     merci: "Thank you for booking with us! See you soon",
-    titre: "Payment",
-    offre: "Offer",
-    reservation: "Booking"
+    port: "Port:",
+    personnes: "Maximum number of people:",
+    cabines: "Cabins:",
+    longueur: "Length:",
+    prix: "Price:",
+    avis: "Reviews:",
+    date_debut: "Departure date:",
+    date_fin: "Date of arrival:",
+    champsObligatoires: "Please fill in all required fields.",
+};
+
+
+const MessagesFR = {
+    ajoute: "Ajouté aux favoris.",
+    ajouteLocal: "Ajouté localement.",
+    deja: "Déjà dans vos favoris.",
+    erreur: "Une erreur est survenue."
+};
+
+const MessagesEN = {
+    ajoute: "Added to favorites.",
+    ajouteLocal: "Added locally.",
+    deja: "Already in your favorites.",
+    erreur: "An error occurred."
 };
 
 const PortsFR = {
     titre: "Nos Ports",
-    disponible: "Bateau disponible"
+    disponible: "Bateau disponible",
+    voirOffres: "Voir les offres"
 }
 
 const PortsEN = {
     titre: "Our Ports",
-    disponible: "Boat available"
+    disponible: "Boat available",
+    voirOffres: "View offers",
 }
 
 const ReinitialisationFR ={
     titre: "Réinitialiser votre mot de passe",
+    reinitialiser: "Réinitialisation pour : ",
     nv: "Nouveau mot de passe",
     valider: "Valider",
 }
 
 const ReinitialisationEN ={
     titre: "Reset your password",
+    reinitialiser: "Reset for : ",
     nv: "New password",
     valider: "Confirm",
 }

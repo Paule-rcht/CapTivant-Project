@@ -6,6 +6,31 @@ error_reporting(E_ALL);
 
 require_once 'config.php'; // S'assurer que ce fichier existe et fonctionne
 
+// Détection de la langue
+$langue = $_COOKIE['langue'] ?? ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'fr');
+$langue = substr($langue, 0, 2); // fr, en, etc.
+if (!in_array($langue, ['fr', 'en'])) {
+    $langue = 'fr';
+}
+
+// Messages traduits
+$messages = [
+    'fr' => [
+        'invalid' => "❌ Lien invalide ou expiré.",
+        'empty' => "❌ Le mot de passe ne peut pas être vide.",
+        'invalid_format' => "❌ Le mot de passe doit contenir au moins 12 caractères, une majuscule et une minuscule.",
+        'success' => "✅ Mot de passe mis à jour avec succès. Redirection...",
+        'reset_for' => "Réinitialisation pour :"
+    ],
+    'en' => [
+        'invalid' => "❌ Invalid or expired link.",
+        'empty' => "❌ Password cannot be empty.",
+        'invalid_format' => "❌ Password must be at least 12 characters, one uppercase and one lowercase letter.",
+        'success' => "✅ Password successfully updated. Redirecting...",
+        'reset_for' => "Resetting password for:"
+    ]
+];
+
 $token = $_GET['token'] ?? '';
 $tokenPath = __DIR__ . "/tokens/$token.txt";
 $message = '';
@@ -14,7 +39,7 @@ $email = '';
 // Si le lien est cliqué (GET)
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!file_exists($tokenPath)) {
-        $message = "❌ Lien invalide ou expiré.";
+        $message = $messages[$langue]['invalid'];
     } else {
         $email = trim(file_get_contents($tokenPath));
     }
@@ -27,11 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nouveau_mdp = $_POST['new_password'] ?? '';
 
     if (!file_exists($tokenPath)) {
-        $message = "❌ Lien invalide ou expiré.";
+        $message = $messages[$langue]['invalid'];
     } elseif (empty($nouveau_mdp)) {
-        $message = "❌ Le mot de passe ne peut pas être vide.";
+        $message = $messages[$langue]['empty'];
     } elseif (strlen($nouveau_mdp) < 12 || !preg_match('/[A-Z]/', $nouveau_mdp) || !preg_match('/[a-z]/', $nouveau_mdp)) {
-        $message = "❌ Le mot de passe doit contenir au moins 12 caractères, une majuscule et une minuscule.";
+        $message = $messages[$langue]['invalid_format'];
     } else {
         $email = trim(file_get_contents($tokenPath));
         $hash = password_hash($nouveau_mdp, PASSWORD_DEFAULT);
@@ -40,11 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$hash, $email]);
 
         unlink($tokenPath);
-        $message = "✅ Mot de passe mis à jour avec succès. Redirection...";
+        $message = $messages[$langue]['success'];
         $redirect = true;
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -93,109 +119,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <?php if (empty($message) || strpos($message, '✅') !== 0): ?>
-        <?php if (!empty($email)): ?>
-            <p style="text-align:center; margin-bottom:20px;">Réinitialisation pour : <strong><?= htmlspecialchars($email) ?></strong></p>
+            <?php if (!empty($email)): ?>
+                <p style="text-align:center; margin-bottom:20px;"><?= $messages[$langue]['reset_for'] ?> <strong><?= htmlspecialchars($email) ?></strong></p>
+            <?php endif; ?>
+            <form method="POST" action="">
+                <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+                <div class="champ">
+                    <div class="input-container">
+                        <input type="password" id="nv" name="new_password" placeholder="Nouveau mot de passe" required>
+                        <img src="images/eye-closed.png" alt="Afficher mot de passe" class="eye-icon" onclick="togglePasswordVisibility('nv')">
+                    </div>
+                </div>
+                <div class="logo-block">
+                    <div class="connexion">
+                        <button type="submit" id="valider" style="color: white; background: none; border: none; font-size: 17px; font-family: 'DM Serif Display', cursive; cursor: pointer">Valider</button>
+                    </div>
+                </div>
+            </form>
+        <?php else: ?>
+            <div style="text-align:center; margin-top:20px;">
+                <a href="Connexion.php" class="btn" style="color:white; background-color:#577550; padding:10px 20px; border-radius:10px; text-decoration:none;">Retour à la connexion</a>
+            </div>
         <?php endif; ?>
-        <form method="POST" action="">
-            <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-            <div class="champ">
-                <div class="input-container">
-                    <input style="margin-left: 30px" type="password" id="nv" name="new_password" placeholder="Nouveau mot de passe" required>
-                    <img src="images/eye-closed.png" alt="Afficher mot de passe" class="eye-icon" onclick="togglePasswordVisibility('nv')">
-                </div>
-            </div>
-            <div class="logo-block">
-                <div class="connexion">
-                    <button type="submit" id="valider" style="color: white; background: none; border: none; font-size: 17px; font-family: 'DM Serif Display', cursive; cursor: pointer>Valider</button>
-                            </div>
-                            </div>
-                            </form>
-                    <?php else: ?>
-                            <div style="text-align:center; margin-top:20px;">
-                    <a href="Connexion.php" class="btn" style="color:white; background-color:#577550; padding:10px 20px; border-radius:10px; text-decoration:none;">Retour à la connexion</a>
-                </div>
-                <?php endif; ?>
-            </div>
     </div>
+</div>
 
-    <div class="bouton-bas">
-        <a href="MentionsLegales.php" class="bottom-text" id="lien-mentions" style="color: #577550">Mentions légales</a>
-        <span class="bottom-text" style="color: #577550">&bull;</span>
-        <a href="Contact.php" class="bottom-text" id="lien-contact" style="color: #577550">Contact</a>
-    </div>
+<div class="bouton-bas">
+    <a href="MentionsLegales.php" class="bottom-text" id="lien-mentions" style="color: #577550">Mentions légales</a>
+    <span class="bottom-text" style="color: #577550">&bull;</span>
+    <a href="Contact.php" class="bottom-text" id="lien-contact" style="color: #577550">Contact</a>
+</div>
 
-    <?php if (!empty($redirect)): ?>
-        <script>
-            setTimeout(function () {
-                window.location.href = 'Connexion.php';
-            }, 3000); // Redirection après 3 secondes
-        </script>
-    <?php endif; ?>
+<?php if (!empty($redirect)): ?>
     <script>
-
-        function toggleMenu() {
-            const menu = document.getElementById("menu-overlay");
-            menu.classList.toggle("active");
-        }
-
-        function toggleLangDropdown() {
-            const dropdown = document.getElementById("lang-dropdown");
-            dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
-        }
-
-        function changerLangue(langue) {
-            localStorage.setItem("langue", langue);
-            location.reload();
-        }
-
-        window.onload = function () {
-            const langue = localStorage.getItem("langue") || "fr";
-            const texte = langue === "en" ? ReinitialisationEN : ReinitialisationFR;
-            const texteCommun = langue === "en" ? CommunEN : CommunFR;
-
-            document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
-            document.getElementById("titre").textContent = texte.titre;
-
-            document.getElementById("nv").placeholder = texte.nv;
-            document.getElementById("valider").textContent = texte.valider;
-            document.getElementById("lien-apropos").textContent = texteCommun.info;
-            document.getElementById("lien-mentions").textContent = texteCommun.mentions;
-            document.getElementById("lien-contact").textContent = texteCommun.contact;
-
-            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-            const menuContent = document.getElementById("menu-links");
-            menuContent.innerHTML = texteCommun.menu.map((item, index) => {
-                return `<a href="${liens[index]}.php">${item}</a>`;
-            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
-
-            const dropdown = document.getElementById("lang-dropdown");
-            dropdown.innerHTML = langue === "en"
-                ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-                : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
-        };
-
-        document.addEventListener("click", function(event) {
-            const dropdown = document.getElementById("lang-dropdown");
-            const icon = document.getElementById("current-lang");
-            if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
-                dropdown.style.display = "none";
-            }
-        });
-        function togglePasswordVisibility(inputId) {
-            const input = document.getElementById(inputId);
-            const icon = document.querySelector(`[onclick="togglePasswordVisibility('${inputId}')"]`);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.src = "images/eye-open.png";
-                icon.alt = "Masquer mot de passe";
-            } else {
-                input.type = "password";
-                icon.src = "images/eye-closed.png";
-                icon.alt = "Afficher mot de passe";
-            }
-        }
-
+        setTimeout(function () {
+            window.location.href = 'Connexion.php';
+        }, 3000); // Redirection après 3 secondes
     </script>
-    <script src="info-bateau.js"></script>
+<?php endif; ?>
+<script>
+
+    function toggleMenu() {
+        const menu = document.getElementById("menu-overlay");
+        menu.classList.toggle("active");
+    }
+
+    function toggleLangDropdown() {
+        const dropdown = document.getElementById("lang-dropdown");
+        dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    }
+
+    function changerLangue(langue) {
+        localStorage.setItem("langue", langue);
+        location.reload();
+    }
+
+    window.onload = function () {
+        const langue = localStorage.getItem("langue") || "fr";
+        const texte = langue === "en" ? ReinitialisationEN : ReinitialisationFR;
+        const texteCommun = langue === "en" ? CommunEN : CommunFR;
+
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+        document.getElementById("titre").textContent = texte.titre;
+
+        document.getElementById("nv").placeholder = texte.nv;
+        document.getElementById("valider").textContent = texte.valider;
+        document.getElementById("lien-apropos").textContent = texteCommun.info;
+        document.getElementById("lien-mentions").textContent = texteCommun.mentions;
+        document.getElementById("lien-contact").textContent = texteCommun.contact;
+
+        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+        const menuContent = document.getElementById("menu-links");
+        menuContent.innerHTML = texteCommun.menu.map((item, index) => {
+            return `<a href="${liens[index]}.php">${item}</a>`;
+        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+
+        const dropdown = document.getElementById("lang-dropdown");
+        dropdown.innerHTML = langue === "en"
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+    };
+
+    document.addEventListener("click", function(event) {
+        const dropdown = document.getElementById("lang-dropdown");
+        const icon = document.getElementById("current-lang");
+        if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.querySelector(`[onclick="togglePasswordVisibility('${inputId}')"]`);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.src = "images/eye-open.png";
+            icon.alt = "Masquer mot de passe";
+        } else {
+            input.type = "password";
+            icon.src = "images/eye-closed.png";
+            icon.alt = "Afficher mot de passe";
+        }
+    }
+
+</script>
+<script src="info-bateau.js"></script>
 </body>
 </html>

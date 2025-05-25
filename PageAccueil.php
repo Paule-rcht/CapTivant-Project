@@ -91,60 +91,6 @@ $accessibilityMode = isset($_SESSION['accessibility_mode']) ? $_SESSION['accessi
 </head>
 <body>
 <div class="navbar-barre"></div>
-<audio id="background-music" loop>
-    <source src="/Cap-tivant/son/piano.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="menu-sound">
-    <source src="/Cap-tivant/son/interface menu copie.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="ports-hover-sound">
-    <source src="/Cap-tivant/son/nos ports.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="location-hover-sound">
-    <source src="/Cap-tivant/son/location.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="historique-hover-sound">
-    <source src="/Cap-tivant/son/historique.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="faq-hover-sound">
-    <source src="/Cap-tivant/son/faq.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="avis-hover-sound">
-    <source src="/Cap-tivant/son/avis.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="historique-hover-sound">
-    <source src="/Cap-tivant/son/historique.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="moncompte-hover-sound">
-    <source src="/Cap-tivant/son/mon compte.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="contact-hover-sound">
-    <source src="/Cap-tivant/son/contact.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="mentions-hover-sound">
-    <source src="/Cap-tivant/son/mention legale.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="apropos-hover-sound">
-    <source src="/Cap-tivant/son/a-propos.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-<audio id="lang-fr-sound">
-    <source src="/Cap-tivant/son/francais.mp3" type="audio/mpeg">
-    Votre navigateur ne supporte pas l’audio.
-</audio>
-
-
 
 <div class="background-fixe"></div>
 
@@ -165,9 +111,9 @@ $accessibilityMode = isset($_SESSION['accessibility_mode']) ? $_SESSION['accessi
     </div>
     <a id="a-propos-link" href="a-propos.php" class="top-infos"></a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -184,7 +130,7 @@ $accessibilityMode = isset($_SESSION['accessibility_mode']) ? $_SESSION['accessi
 <section class="section-accueil">
     <div class="texte-wrapper">
         <div class="texte principal" id="texte-principal">Cap'Tivant</div>
-        <div class="texte secondaire" id="texte-secondaire">Location de bateau</div>
+        <a href="location.php" class="texte secondaire" style="text-decoration: none" id="texte-secondaire">Location de bateau</a>
     </div>
 </section>
 
@@ -216,13 +162,6 @@ $accessibilityMode = isset($_SESSION['accessibility_mode']) ? $_SESSION['accessi
     <a id="lien-contact" href="Contact.php" class="bottom-text"></a>
 </div>
 
-<!-- Contrôles -->
-<div id="access-control" data-tooltip="<?= $accessibilityMode ? 'Désactiver accessibilité' : 'Activer accessibilité' ?>">
-    <img src="images/aveugle.jpeg" alt="Mode accessibilité">
-</div>
-<div id="music-control" data-tooltip="Activer la musique">🔇</div>
-
-<!-- Scripts -->
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="info-bateau.js"></script>
 <script>
@@ -230,7 +169,6 @@ $accessibilityMode = isset($_SESSION['accessibility_mode']) ? $_SESSION['accessi
         const overlay = document.getElementById("menu-overlay");
         overlay.classList.toggle("active");
 
-        // Si accessibilité activée, jouer le son du menu
         if (document.body.classList.contains('accessibility-mode')) {
             const menuAudio = document.getElementById('menu-sound');
             menuAudio.currentTime = 0;

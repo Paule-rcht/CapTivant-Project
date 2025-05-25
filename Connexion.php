@@ -150,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="champ">
             <img src="images/mdp.png" alt="mot de passe">
             <div class="input-container">
-                <input  style="margin-left: 30px" type="password" id="password" name="password" placeholder="Enter your password" required>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 <img src="images/eye-closed.png" alt="Afficher mot de passe" class="eye-icon" onclick="togglePasswordVisibility('password')">
             </div>
         </div>

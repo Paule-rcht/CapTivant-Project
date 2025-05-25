@@ -17,15 +17,10 @@ $estConnecte = isset($_SESSION['user_id']);
 </head>
 <body>
 <div class="navbar-barre"></div>
-<?php
-if (isset($_GET['success']) && $_GET['success'] == 1 && isset($_GET['email'])) {
-    $email = htmlspecialchars($_GET['email']);
-    echo "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 150px'>";
-    echo "<p id='lien' style='color: rgb(87,117,80); font-weight: bold; font-size: 1.3em; margin-bottom: 10px;'></p>";
-    echo "<p style='font-size: 1.1em;'>$email</p>";
-    echo "</div>";
-}
-?>
+<div id="message-success" style="display: none; flex-direction: column; align-items: center; justify-content: center; margin-top: 150px;">
+    <p id="lien" style="color: rgb(87,117,80); font-weight: bold; font-size: 1.3em; margin-bottom: 10px; min-height: 1.5em;"></p>
+    <p id="email-affiche" style="font-size: 1.1em;"></p>
+</div>
 
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu.png" alt="Menu">
@@ -108,6 +103,15 @@ if (isset($_GET['success']) && $_GET['success'] == 1 && isset($_GET['email'])) {
         const langue = localStorage.getItem("langue") || "fr";
         const texte = langue === "en" ? MdpEN : MdpFR;
         const commun = langue === "en" ? CommunEN : CommunFR;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("success") === "1" && urlParams.get("email")) {
+            const messageDiv = document.getElementById("message-success");
+            const email = decodeURIComponent(urlParams.get("email"));
+            document.getElementById("lien").textContent = texte.lien;
+            document.getElementById("email-affiche").textContent = email;
+            messageDiv.style.display = "flex";
+        }
 
         document.getElementById("page-title").textContent = texte.titre;
         document.getElementById("titre-page").textContent = texte.titre;

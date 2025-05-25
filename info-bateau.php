@@ -56,9 +56,9 @@ $estConnecte = isset($_SESSION['user_id']);
     </div>
     <a href="a-propos.php" id="menu-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -179,7 +179,6 @@ $estConnecte = isset($_SESSION['user_id']);
                 const marker = L.marker(port.coords).addTo(map);
                 marker.bindPopup(popupContent);
 
-// 👉 Ajoute ceci pour rediriger au clic
                 marker.on('click', () => {
                     window.location.href = `ports.php?port=${encodeURIComponent(port.name)}&lat=${port.coords[0]}&lng=${port.coords[1]}&zoom=13`;
                 });
@@ -204,11 +203,10 @@ $estConnecte = isset($_SESSION['user_id']);
             body: `id_bateau=${id}`
         })
             .then(response => response.text())
-            .then(data => alert(data)) // ici tu peux afficher "Ajouté" ou "Déjà ajouté"
+            .then(data => alert(data))
             .catch(error => console.error('Erreur AJAX:', error));
     }
 
 </script>
-
 </body>
 </html>

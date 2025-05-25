@@ -51,13 +51,12 @@ try {
 
         <a id="a-propos-link" href="a-propos.php" style="color: #e0e0d5; text-decoration: none; white-space: nowrap;">A propos</a>
         <?php if ($estConnecte): ?>
-            <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+            <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+                <?= htmlspecialchars($_SESSION['first_name']) ?>
+            </a>
         <?php else: ?>
             <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
         <?php endif; ?>
-
         <a href="favoris.php">
             <img src="images/panier.png" alt="Panier" style="min-width: 20px;">
         </a>

@@ -1,10 +1,32 @@
 <?php
 session_start();
 require_once 'config.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
+// Vérifie si l'utilisateur est connecté
 $estConnecte = isset($_SESSION['user_id']);
 $favoris = [];
 
+// Récupère la langue
+$langue = $_COOKIE['langue'] ?? 'fr';
+
+// Messages traduits
+$messages = [
+    'fr' => [
+        'added' => "Ajouté aux favoris.",
+        'added_local' => "Ajouté localement.",
+        'exists' => "Déjà dans vos favoris."
+    ],
+    'en' => [
+        'added' => "Added to favorites.",
+        'added_local' => "Added locally.",
+        'exists' => "Already in your favorites."
+    ]
+];
+
+// Si ajout ou retrait depuis POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['id_bateau'])) {
         $idToAdd = (int) $_POST['id_bateau'];
@@ -19,22 +41,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($existe == 0) {
                 $stmt = $pdo->prepare("INSERT INTO favoris (user_id, bateau_id) VALUES (?, ?)");
                 $stmt->execute([$user_id, $idToAdd]);
-                echo "Ajouté aux favoris.";
+                echo $messages[$langue]['added'];
             } else {
-                echo "Déjà dans vos favoris.";
+                echo $messages[$langue]['exists'];
             }
         } else {
             $favoris = json_decode($_COOKIE['favoris'] ?? '[]', true);
             if (!in_array($idToAdd, $favoris)) {
                 $favoris[] = $idToAdd;
                 setcookie('favoris', json_encode($favoris), time() + 3600 * 24 * 30, "/");
-                echo "Ajouté localement.";
+                echo $messages[$langue]['added_local'];
             } else {
-                echo "Déjà dans vos favoris.";
+                echo $messages[$langue]['exists'];
             }
         }
         exit;
-    } elseif (isset($_POST['retirer_id'])) {
+    }
+
+    if (isset($_POST['retirer_id'])) {
         $idToRemove = (int) $_POST['retirer_id'];
 
         if ($estConnecte) {
@@ -47,9 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $favoris = json_decode($_COOKIE['favoris'] ?? '[]', true);
             if (($key = array_search($idToRemove, $favoris)) !== false) {
                 unset($favoris[$key]);
-                $favoris = array_values($favoris); // Réindexer le tableau
+                $favoris = array_values($favoris); // Réindexer
                 setcookie('favoris', json_encode($favoris), time() + 3600 * 24 * 30, "/");
-                $_COOKIE['favoris'] = json_encode($favoris); // Met à jour la variable superglobale
+                $_COOKIE['favoris'] = json_encode($favoris); // Met à jour la superglobale
             }
             header("Location: favoris.php");
             exit;
@@ -57,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Récupération des favoris
 if ($estConnecte) {
     $user_id = $_SESSION['user_id'];
     $stmt = $pdo->prepare("SELECT b.* FROM bateaux b JOIN favoris f ON b.id = f.bateau_id WHERE f.user_id = ?");
@@ -72,6 +97,7 @@ if ($estConnecte) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -84,8 +110,8 @@ if ($estConnecte) {
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <script src="info-bateau.js" defer></script>
 </head>
-<div class="navbar-barre"></div>
 <body style="background-color: #c5d8d3;">
+<div class="navbar-barre"></div>
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu.png" alt="Menu">
 </div>
@@ -99,9 +125,9 @@ if ($estConnecte) {
     </div>
     <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -117,7 +143,9 @@ if ($estConnecte) {
 </div>
 <div class="favoris-container" id="favoris-container">
     <?php if (count($favoris) === 0): ?>
-        <p id="texte-aucun-favori" style="text-align:center; width: 100%; font-family: DM Serif Display;">Aucun favori enregistré.</p>
+        <p id="texte-aucun-favori" style="text-align:center; width: 100%; font-family: DM Serif Display; min-height: 2em; display: <?= count($favoris) === 0 ? 'block' : 'none' ?>;">
+            Aucun favori enregistré.
+        </p>
     <?php else: ?>
         <?php foreach ($favoris as $bateau): ?>
             <div class="favori-card" data-id="<?= $bateau['id'] ?>">
@@ -171,20 +199,25 @@ if ($estConnecte) {
         document.title = favorisTxt.titre;
         document.getElementById("page-title").textContent = favorisTxt.titre;
         document.getElementById("titre-page").textContent = favorisTxt.titre;
+        const firstName = <?= json_encode($_SESSION['first_name'] ?? '') ?>;
+        const compteText = firstName ? `${commun.compte} (${firstName})` : commun.compte;
+        document.getElementById("lien-compte").textContent = compteText;
 
         const aucunFavori = document.getElementById("texte-aucun-favori");
         if (aucunFavori) aucunFavori.textContent = favorisTxt.aucun;
 
-        document.querySelectorAll(".favori-card").forEach(card => {
-            const id = parseInt(card.dataset.id);
-            const bateau = bateauxData.find(b => b.id === id);
-            if (bateau) {
-                card.querySelector(".image-bateau").src = bateau.image1;
-                card.querySelector(".image-bateau").alt = bateau.titre;
-                card.querySelector(".titre-bateau").textContent = bateau.titre;
-                card.querySelector(".infos-bateau").textContent = `${bateau.personnes} • ${bateau.cabines}`;
-            }
-        });
+        if (Array.isArray(bateauxData)) {
+            document.querySelectorAll(".favori-card").forEach(card => {
+                const id = parseInt(card.dataset.id);
+                const bateau = bateauxData.find(b => b.id === id);
+                if (bateau) {
+                    card.querySelector(".image-bateau").src = bateau.image1;
+                    card.querySelector(".image-bateau").alt = bateau.titre;
+                    card.querySelector(".titre-bateau").textContent = bateau.titre;
+                    card.querySelector(".infos-bateau").textContent = `${bateau.personnes} • ${bateau.cabines}`;
+                }
+            });
+        }
 
         document.querySelectorAll(".btn-voir").forEach(el => {
             el.textContent = favorisTxt.voir;
@@ -194,7 +227,6 @@ if ($estConnecte) {
         });
 
         document.getElementById("lien-apropos").textContent = commun.info;
-        document.getElementById("lien-compte").textContent = commun.compte;
         document.getElementById("lien-mentions").textContent = commun.mentions;
         document.getElementById("lien-contact").textContent = commun.contact;
         document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
@@ -213,35 +245,9 @@ if ($estConnecte) {
             lien.setAttribute("href", `${page}.php`);
         });
 
-        if (!<?= json_encode($estConnecte) ?>) {
-            const favorisIds = JSON.parse(localStorage.getItem("favoris") || "[]");
-            if (favorisIds.length > 0) {
-                const container = document.getElementById("favoris-non-connecte");
-                const texte = langue === "en" ? FavorisEN : FavorisFR;
-                favorisIds.forEach(id => {
-                    const bateau = bateauxData.find(b => b.id === id);
-                    if (!bateau) return;
 
-                    const card = document.createElement("div");
-                    card.className = "favori-card";
-                    card.innerHTML = `
-                    <img class="image-bateau" src="${bateau.image1}" alt="${bateau.titre}">
-                    <h3 class="titre-bateau">${bateau.titre}</h3>
-                    <p class="infos-bateau">${bateau.personnes} • ${bateau.cabines}</p>
-                    <a href="info-bateau.php?id=${bateau.id}" class="btn-voir">${texte.voir}</a>
-                    <button class="btn-retirer" onclick="retirerFavoriLocal(${bateau.id})">${texte.retirer}</button>
-                `;
-                    container.appendChild(card);
-                });
-            }
-        }
 
-        if (!<?= json_encode($estConnecte) ?>) {
-            const favoris = localStorage.getItem("favoris");
-            if (favoris) {
-                document.cookie = "favoris=" + encodeURIComponent(favoris) + "; path=/";
-            }
-        }
+
     });
 
     function retirerFavoriLocal(id) {
@@ -257,6 +263,12 @@ if ($estConnecte) {
         // Supprime visuellement la carte sans rechargement
         const card = document.querySelector(`.favori-card[data-id="${id}"]`);
         if (card) card.remove();
+        // Si plus aucun favori, afficher le message
+        if (document.querySelectorAll(".favori-card").length === 0) {
+            const texteAucun = document.getElementById("texte-aucun-favori");
+            if (texteAucun) texteAucun.style.display = "block";
+        }
+
     }
 </script>
 </body>

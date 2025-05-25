@@ -9,6 +9,18 @@ body, html {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+
+.favori-card {
+    min-height: 320px;
+    box-sizing: border-box;
+}
+.titre-bateau, .infos-bateau, .btn-voir, .btn-retirer {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 .favoris-container {
     margin-top: 50px;
     display: flex;

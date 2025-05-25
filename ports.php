@@ -47,9 +47,9 @@ $estConnecte = isset($_SESSION['user_id']);
     </div>
     <a href="a-propos.php" id="lien-apropos" style="color: #e0e0d5; text-decoration: none;"></a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -86,8 +86,11 @@ $estConnecte = isset($_SESSION['user_id']);
     }
 
     function changerLangue(langue) {
-        localStorage.setItem("langue", langue);
-        location.reload();
+        if (langue === 'en') {
+            window.location.href = 'ports-en.php';
+        } else {
+            window.location.href = 'ports.php';
+        }
     }
 
     window.onload = function () {

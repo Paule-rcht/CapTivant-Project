@@ -50,9 +50,9 @@ if ($estConnecte) {
     </div>
     <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #e0e0d5; text-decoration: none;">A propos</a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -71,7 +71,7 @@ if ($estConnecte) {
 </div>
 <div class="historique-container" id="historique-container">
     <?php if (count($historique) === 0): ?>
-        <p style="text-align:center;">Aucune réservation.</p>
+        <p style="text-align:center;" id="vide"></p>
     <?php else: ?>
         <?php foreach ($historique as $bateau): ?>
             <div class="historique-card">
@@ -98,7 +98,7 @@ if ($estConnecte) {
                         echo "</div>";
                     }
                 } else {
-                    echo "<p class='no-review'><em>Vous n'avez pas encore laissé d'avis pour ce bateau.</em></p>";
+                    echo "<p class='no-review laisserAvis'><em></em></p>";
                 }
                 ?>
             </div>
@@ -143,9 +143,15 @@ if ($estConnecte) {
         const texte = langue === "en" ? HistoriqueEN : HistoriqueFR;
         const commun = langue === "en" ? CommunEN : CommunFR;
 
+        document.title = texte.titre;
+        document.getElementById("titre-page").textContent = texte.titre;
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
 
 
-
+        document.getElementById("lien-apropos").textContent = commun.info;
+        document.getElementById("lien-mentions").textContent = commun.mentions;
+        document.getElementById("lien-contact").textContent = commun.contact;
+        document.getElementById("vide").textContent = texte.vide;
 
         document.querySelectorAll(".label-port").forEach(el => el.textContent = texte.port + " :");
         document.querySelectorAll(".label-personnes").forEach(el => el.textContent = texte.personnes + " :");
@@ -154,11 +160,14 @@ if ($estConnecte) {
         document.querySelectorAll(".label-prix").forEach(el => el.textContent = texte.prix + " :");
 
         document.querySelectorAll(".btn-avis").forEach(btn => {btn.textContent = texte.avis;});
+        document.querySelectorAll(".laisserAvis").forEach(btn => {btn.textContent = texte.laisserAvis;});
 
         document.querySelectorAll(".avis-comment-label").forEach(el => el.textContent = texte.commentaire + " :");
         document.querySelectorAll(".avis-note-label").forEach(el => el.textContent = texte.note + " :");
         document.querySelectorAll(".avis-poste-label").forEach(el => el.textContent = texte.poste + " ");
-
+        const firstName = <?= json_encode($_SESSION['first_name'] ?? '') ?>;
+        const compteText = firstName ? `${commun.compte} (${firstName})` : commun.compte;
+        document.getElementById("lien-compte").textContent = compteText;
         const langDropdown = document.getElementById("lang-dropdown");
         langDropdown.innerHTML = langue === "en"
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
@@ -207,8 +216,11 @@ if ($estConnecte) {
         const commentaire = document.getElementById("commentaire").value.trim();
         const etoiles = document.getElementById("etoiles").value;
 
+        const langue = getLangue(); // récupère la langue depuis le localStorage
+        const texte = langue === "en" ? HistoriqueEN : HistoriqueFR;
+
         if (!commentaire || !etoiles) {
-            alert("Merci de remplir tous les champs.");
+            alert(texte.alerte_champs_vides);
             return;
         }
 
@@ -222,12 +234,12 @@ if ($estConnecte) {
             body: form
         })
             .then(() => {
-                alert("Merci ! Votre avis a été enregistré.");
+                alert(texte.alerte_succes);
                 fermerAvisPopup();
-                location.reload(); // Recharge la page pour afficher l’avis si besoin
+                location.reload();
             })
             .catch(() => {
-                alert("Une erreur est survenue lors de l’envoi de l’avis.");
+                alert(texte.alerte_erreur);
             });
     }
 

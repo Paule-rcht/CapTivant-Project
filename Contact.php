@@ -1,4 +1,15 @@
 <?php
+
+if (!isset($_COOKIE['langue']) && isset($_SERVER['HTTP_REFERER']) && !isset($_GET['reloaded'])) {
+    echo "<script>
+        const langue = localStorage.getItem('langue') || 'fr';
+        document.cookie = 'langue=' + langue + '; path=/';
+        window.location.href = window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'reloaded=1';
+    </script>";
+    exit;
+}
+
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -7,12 +18,37 @@ session_start();
 require_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
+
 $estConnecte = isset($_SESSION['user_id']);
 $success = $error = '';
+$langue = $_COOKIE['langue'] ?? 'fr';
+$langue = substr($langue, 0, 2);
+if (!in_array($langue, ['fr', 'en'])) {
+    $langue = 'fr';
+}
+
+// Textes multilingues
+$textes = [
+    'success' => [
+        'fr' => "Votre message a bien été envoyé.",
+        'en' => "Your message has been sent successfully."
+    ],
+    'missing_fields' => [
+        'fr' => "Nom et email sont obligatoires",
+        'en' => "Name and email are required"
+    ],
+    'missing_message' => [
+        'fr' => "Le message est vide",
+        'en' => "The message is empty"
+    ],
+    'mail_error' => [
+        'fr' => "Erreur lors de l'envoi du mail : ",
+        'en' => "Error while sending the email: "
+    ]
+];
 
 $user = null;
 if ($estConnecte) {
@@ -27,26 +63,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nom = $user['last_name'];
         $email = $user['email'];
         $tel = $user['phone'];
-    }
-    else {
+    } else {
         $nom = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $tel = trim($_POST['phone'] ?? '');
     }
 
-
     if (!$nom || !$email || !$message) {
-        if (!$nom || !$email ) {
-            $error = "Nom et email sont obligatoires";
-        }if (!message) {
-            $error = "Le message est vide";
+        if (!$nom || !$email) {
+            $error = $textes['missing_fields'][$langue];
+        } elseif (!$message) {
+            $error = $textes['missing_message'][$langue];
         }
     } else {
         // Sauvegarde en base
         $stmt = $pdo->prepare("INSERT INTO contact_messages (name, email, phone, message, created_at) VALUES (?, ?, ?, ?, NOW())");
         $stmt->execute([$nom, $email, $tel, $message]);
 
-        // Envoi de l'email
+        // Envoi email
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
@@ -57,35 +91,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 
-            $mail->setFrom($email, $nom);
+            $mail->setFrom('paule.rochette2004@gmail.com', 'Cap-Tivant');
+            $mail->addAddress('paule.rochette2004@gmail.com', 'Cap-Tivant');
             $mail->addReplyTo($email, $nom);
 
-            $mail->addAddress('paule.rochette2004@gmail.com', 'Cap-Tivant');
-
             $mail->isHTML(true);
-            $mail->Subject = '📩 Nouveau message depuis le formulaire de contact';
+            $mail->Subject = 'Nouveau message reçu via Cap-Tivant';
+
             $mail->Body = "
-                <strong>Nom :</strong> $nom<br>
-                <strong>Email :</strong> $email<br>
-                <strong>Téléphone :</strong> $tel<br><br>
-                <strong>Message :</strong><br>" . nl2br(htmlspecialchars($message));
+            <html>
+            <head><style>
+                body { font-family: Arial, sans-serif; background-color: #f2f2f2; padding: 20px; }
+                .container { background-color: #fff; border-radius: 10px; padding: 20px; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                h2 { color: #004080; }
+                p { line-height: 1.5; }
+                .footer { margin-top: 30px; font-size: 13px; color: #888; }
+            </style></head>
+            <body>
+                <div class='container'>
+                    <h2>Message de $nom</h2>
+                    <p><strong>Nom :</strong> $nom</p>
+                    <p><strong>Email :</strong> $email</p>
+                    <p><strong>Telephone :</strong> " . ($tel ?: 'Non fourni') . "</p>
+                    <hr>
+                    <p><strong>Message :</strong><br>" . nl2br(htmlspecialchars($message)) . "</p>
+                    <div class='footer'>Ce message a ete envoye depuis le formulaire de contact Cap-Tivant.</div>
+                </div>
+            </body>
+            </html>";
 
             $mail->send();
-            $success = "Votre message a bien été envoyé.";
+            $success = $textes['success'][$langue];
         } catch (Exception $e) {
-            $error = "Erreur lors de l'envoi du mail : " . $mail->ErrorInfo;
+            $error = $textes['mail_error'][$langue] . $mail->ErrorInfo;
         }
     }
 }
-
-
-
-
 ?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
+    <script>
+        const lang = localStorage.getItem("langue") || "fr";
+        document.cookie = "langue=" + lang + "; path=/";
+    </script>
     <meta charset="UTF-8">
     <title id="page-title">Contact</title>
     <link rel="stylesheet" href="PageAccueil.css">
@@ -116,9 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -224,16 +275,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById("page-title").textContent = texte.titre;
         document.getElementById("titre-page").textContent = texte.titre;
         document.getElementById("contact-texte").textContent = texte.texte;
-        if (estConnecte) {
-            $nom = trim($_POST['last_name'] ?? '');
-            $mail = trim($_POST['email'] ?? '');
-            $telephone = trim($_POST['phone'] ?? '');
-        } else {
+        if (!estConnecte) {
             document.getElementById("nom").placeholder = texte.nom;
             document.getElementById("mail").placeholder = texte.email;
             document.getElementById("tel").placeholder = texte.telephone;
         }
-
 
         document.getElementById("label-msg").textContent = texte.label;
         document.getElementById("msg").placeholder = texte.msg;

@@ -22,6 +22,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recaptchaSecret = '6LfJqjErAAAAABxFJ1B916BkIyvUe2S5CyvNjdbl';
     $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
     $recaptchaVerified = false;
+    $langue = $_POST['langue'] ?? 'fr';
+
+    $messages = [
+        'fr' => [
+            'recaptcha' => "Veuillez confirmer que vous n'êtes pas un robot.",
+            'champs' => "Tous les champs sont obligatoires.",
+            'mdpInvalide' => "Le mot de passe doit contenir au moins 12 caractères, une majuscule et une minuscule.",
+            'mdpDifferent' => "Les mots de passe ne correspondent pas.",
+            'emailUtilise' => "Cet e-mail est déjà utilisé.",
+            'emailErreur' => "L'inscription est réussie, mais l'email n'a pas pu être envoyé."
+        ],
+        'en' => [
+            'recaptcha' => "Please confirm you are not a robot.",
+            'champs' => "All fields are required.",
+            'mdpInvalide' => "Password must be at least 12 characters, with one uppercase and one lowercase letter.",
+            'mdpDifferent' => "Passwords do not match.",
+            'emailUtilise' => "This email is already in use.",
+            'emailErreur' => "Registration succeeded, but the email could not be sent."
+        ]
+    ];
 
     if ($recaptchaResponse) {
         $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaSecret&response=$recaptchaResponse");
@@ -30,21 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$recaptchaVerified) {
-        $error = "Veuillez confirmer que vous n'êtes pas un robot.";
-    }
-
-    if (!$nom || !$prenom || !$email || !$mdp || !$mdp_confirm || !$mentions) {
-        $error = "Tous les champs sont obligatoires.";
+        $error = $messages[$langue]['recaptcha'];
+    } elseif (!$nom || !$prenom || !$email || !$mdp || !$mdp_confirm || !$mentions) {
+        $error = $messages[$langue]['champs'];
     } elseif ($mdp !== $mdp_confirm) {
-        $error = "Les mots de passe ne correspondent pas.";
+        $error = $messages[$langue]['mdpDifferent'];
     } elseif (strlen($mdp) < 12 || !preg_match('/[A-Z]/', $mdp) || !preg_match('/[a-z]/', $mdp)) {
-        $error = "Le mot de passe doit contenir au moins 12 caractères, une majuscule et une minuscule.";
+        $error = $messages[$langue]['mdpInvalide'];
     } else {
         $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $check->execute([$email]);
 
         if ($check->fetch()) {
-            $error = "Cet e-mail est déjà utilisé.";
+            $error = $messages[$langue]['emailUtilise'];
         } else {
             $hash = password_hash($mdp, PASSWORD_DEFAULT);
             $insert = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, newsletter) VALUES (?, ?, ?, ?, ?)");
@@ -72,11 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     error_log("✅ Email envoyé à $email");
                 } catch (Exception $e) {
                     error_log("❌ Erreur envoi mail : " . $mail->ErrorInfo);
-                    $error = "L'inscription est réussie, mais l'email n'a pas pu être envoyé.";
+                    $error = $messages[$langue]['emailErreur'];
                 }
             }
 
-            // ✅ Redirection uniquement si pas d'erreur
             if (!$error) {
                 header("Location: Connexion.php?inscription=ok");
                 exit;
@@ -85,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -115,9 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <a id="a-propos-link" href="a-propos.php" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -139,6 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <main class="contenu-scrollable" >
     <form method="POST" action="Inscription.php" class="formulaire-inscription">
+        <input type="hidden" name="langue" id="langue">
         <div class="champ">
             <br>
             <div class="champ-obligatoire">
@@ -258,6 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     document.addEventListener("DOMContentLoaded", function () {
         const langue = localStorage.getItem("langue") || "fr";
+        document.getElementById("langue").value = langue;
         const texte = langue === "en" ? InscriptionEN : InscriptionFR;
         const commun = langue === "en" ? CommunEN : CommunFR;
         const compteLink = document.getElementById("lien-compte");

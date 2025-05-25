@@ -1,7 +1,40 @@
 <?php
 session_start();
 $estConnecte = isset($_SESSION['user_id']);
+
+$langue = $_COOKIE['langue'] ?? 'fr';
+$langue = substr($langue, 0, 2);
+if (!in_array($langue, ['fr', 'en'])) {
+    $langue = 'fr';
+}
+
+$message = '';
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+
+    $messages = [
+        'already_reserved' => [
+            'fr' => "Vous avez déjà réservé ce bateau.",
+            'en' => "You have already booked this boat."
+        ],
+        'db_error' => [
+            'fr' => "Problème lors de l'enregistrement de la réservation.",
+            'en' => "There was a problem saving the booking."
+        ],
+        'not_logged_in' => [
+            'fr' => "Vous devez être connecté pour réserver.",
+            'en' => "You must be logged in to book."
+        ],
+        'default' => [
+            'fr' => "Une erreur inconnue est survenue.",
+            'en' => "An unknown error has occurred."
+        ]
+    ];
+
+    $message = $messages[$error][$langue] ?? $messages['default'][$langue];
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -63,9 +96,9 @@ $estConnecte = isset($_SESSION['user_id']);
     </div>
     <a href="a-propos.php" style="color: #E0E0D5; text-decoration: none;">À propos</a>
     <?php if ($estConnecte): ?>
-        <span style="color: #e0e0d5; font-weight: bold; margin-right: 15px;">
-        <?= htmlspecialchars($_SESSION['first_name']) ?>
-    </span>
+        <a  href="MonCompte.php" style="color: #e0e0d5; font-weight: bold; margin-right: 15px; text-decoration: none;">
+            <?= htmlspecialchars($_SESSION['first_name']) ?>
+        </a>
     <?php else: ?>
         <a id="lien-compte" href="Connexion.php" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <?php endif; ?>
@@ -119,22 +152,9 @@ $estConnecte = isset($_SESSION['user_id']);
             </div>
         </div>
     </div>
-    <div id="error-message" style=' color: red; text-align: center;'>
+    <div id="error-message" style='color: red; text-align: center;'>
         <strong>
-            <?php
-            if (isset($_GET['error'])) {
-                $error = $_GET['error'];
-                if ($error === 'already_reserved') {
-                    echo "Vous avez déjà réservé ce bateau.";
-                } elseif ($error === 'db_error') {
-                    echo "Problème lors de l'enregistrement de la réservation.";
-                } elseif ($error === 'not_logged_in') {
-                    echo "<a style=' color: red;'>Vous devez être connecté pour réserver. </a>";
-                } else {
-                    echo "Une erreur inconnue est survenue.";
-                }
-            }
-            ?>
+            <?php if (!empty($message)) echo htmlspecialchars($message); ?>
         </strong>
     </div>
 </div>
@@ -245,9 +265,30 @@ $estConnecte = isset($_SESSION['user_id']);
         if (document.querySelector('label[for="enfant-checkbox"]')) document.querySelector('label[for="enfant-checkbox"]').textContent = texte.enfantLabel || "Enfant à bord";
         if (document.querySelector('.options-bateau h3')) document.querySelector('.options-bateau h3').textContent = texte.optionsTitre || "Options supplémentaires";
         if (document.querySelector('.total-et-paiement p strong')) document.querySelector('.total-et-paiement p strong').textContent = texte.total || "Total à payer :";
-        if (document.getElementById("btn-payer-submit")) document.getElementById("btn-payer-submit").textContent = texte.payer || "Payer";
+        if (document.getElementById("btn-payer")) {
+            document.getElementById("btn-payer").textContent = texte.payer || "Payer";
+        }
 
-        // --- Logique spécifique au bateau ---
+        const erreurNbPersonnes = document.getElementById("erreur-nb-personnes");
+        if (erreurNbPersonnes) {
+            erreurNbPersonnes.addEventListener("click", () => {
+                regenererOptionsPersonnes(nbPersonnesMax, texte);
+            });
+        }
+
+        document.querySelector('label[for="date_debut"]').textContent = texte.date_debut || "Date de départ :";
+        document.querySelector('label[for="date_fin"]').textContent = texte.date_fin || "Date de retour :";
+
+        const labelsInfo = document.querySelectorAll('#carte-bateau p');
+        if (labelsInfo.length >= 6) {
+            labelsInfo[0].querySelector('strong').textContent = texte.port || "Port :";
+            labelsInfo[1].querySelector('strong').textContent = texte.personnes || "Nombre de personnes maximum :";
+            labelsInfo[2].querySelector('strong').textContent = texte.cabines || "Cabines :";
+            labelsInfo[3].querySelector('strong').textContent = texte.longueur || "Longueur :";
+            labelsInfo[4].querySelector('strong').textContent = texte.prix || "Prix :";
+            labelsInfo[5].querySelector('strong').textContent = texte.avis || "Avis :";
+        }
+
         if (id === null) {
             console.error("ID de bateau manquant ou invalide dans l'URL.");
             // Afficher un message d'erreur à l'utilisateur ?
@@ -357,6 +398,26 @@ $estConnecte = isset($_SESSION['user_id']);
         }
     }); // Fin de DOMContentLoaded
 
+    function regenererOptionsPersonnes(nbMax, texte) {
+        const select = document.getElementById("select-personnes");
+        if (!select) return;
+
+        select.innerHTML = "";
+
+        const defaultOption = document.createElement("option");
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        defaultOption.textContent = texte.choisirNombre || "Choose...";
+        select.appendChild(defaultOption);
+
+        for (let i = 1; i <= nbMax; i++) {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = i + (i === 1 ? texte.personneSingulier : texte.personnePluriel);
+            select.appendChild(option);
+        }
+    }
+
 
     // --- Gestion du changement de langue ---
     function toggleLangDropdown() {
@@ -413,11 +474,15 @@ $estConnecte = isset($_SESSION['user_id']);
         const enfant = document.getElementById("enfant-checkbox").checked ? "1" : "0";
         const idBateau = new URLSearchParams(window.location.search).get("id");
 
+        const langue = localStorage.getItem("langue") || "fr";
+        const texte = langue === "en" ? PaiementEN : PaiementFR;
+
         if (!dateDebut || !dateFin || !personnes) {
-            alert("Veuillez remplir toutes les informations obligatoires.");
+            alert(texte.champsObligatoires || "Veuillez remplir toutes les informations obligatoires.");
             e.preventDefault();
             return;
         }
+
         const select = document.getElementById("select-personnes");
         const erreurNbPersonnes = document.getElementById("erreur-nb-personnes");
 
