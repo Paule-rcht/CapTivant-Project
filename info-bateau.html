@@ -7,16 +7,15 @@
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="offre.css">
     <link rel="stylesheet" href="info-bateau.css">
-    <link rel="stylesheet" href="nav-barre.css">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="ports-info.js"></script>
+    <script src="ports-info.js" defer></script>
     <script src="info-bateau.js" defer></script>
 </head>
-<body>
-<div class="navbar-barre"></div>
+<body style="background-color: #c5d8d3;">
+
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu.png" alt="Menu">
 </div>
@@ -34,19 +33,19 @@
     </div>
 </div>
 <div id="menu-overlay" class="menu-overlay">
-    <div class="menu-content">
+    <div class="menu-content" id="menu-links">
         <a href="location.html" id="menu-location">LOCATION</a>
         <a href="ports.html" id="menu-ports">NOS PORTS</a>
         <a href="MonCompte.html" id="menu-compte">MON COMPTE</a>
         <a href="historique.html" id="menu-historique">HISTORIQUE</a>
         <a href="faq.html" id="menu-faq">FAQ</a>
-        <a href="Avis.html" id="menu-avis">AVIS</a>
+        <a href="avis.html" id="menu-avis">AVIS</a>
         <span onclick="toggleMenu()" class="close-menu">✕</span>
     </div>
 </div>
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a href="a-propos.html" id="menu-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
@@ -78,36 +77,58 @@
         return localStorage.getItem("langue") || "fr";
     }
 
+    document.addEventListener("click", function(event) {
+        const dropdown = document.getElementById("lang-dropdown");
+        const icon = document.getElementById("current-lang");
+        if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+
     window.onload = function () {
         const langue = getLangue();
-        const commun = langue === 'en' ? CommunEN : CommunFR;
-        const listeBateaux = langue === 'en' ? bateauxEN : bateaux;
-        const texte = langue === 'en' ? InfoBateauEN : InfoBateauFR;
+        const commun = langue === 'en' ? (typeof CommunEN !== 'undefined' ? CommunEN : {}) : (typeof CommunFR !== 'undefined' ? CommunFR : {});
+        const listeBateaux = langue === 'en' ? (typeof bateauxEN !== 'undefined' ? bateauxEN : []) : (typeof bateaux !== 'undefined' ? bateaux : []);
+        const texte = langue === 'en' ? (typeof InfoBateauEN !== 'undefined' ? InfoBateauEN : {}) : (typeof InfoBateauFR !== 'undefined' ? InfoBateauFR : {});
+
+        // Utilisateur connecté
+        const user = JSON.parse(localStorage.getItem("user") || "null");
         const compteLink = document.getElementById("lien-compte");
         if (compteLink) {
-            compteLink.textContent = commun.compte;
+            if (user && user.firstName) {
+                compteLink.textContent = user.firstName;
+                compteLink.setAttribute("href", "MonCompte.html");
+            } else if (commun.compte) {
+                compteLink.textContent = commun.compte;
+                compteLink.setAttribute("href", "Connexion.html");
+            }
         }
 
         document.getElementById("current-lang").src = langue === 'en' ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === 'en'
-            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-        document.getElementById("menu-location").textContent = commun.menu[0];
-        document.getElementById("menu-ports").textContent = commun.menu[1];
-        document.getElementById("menu-compte").textContent = commun.menu[2];
-        document.getElementById("menu-historique").textContent = commun.menu[3];
-        document.getElementById("menu-faq").textContent = commun.menu[4];
-        document.getElementById("menu-avis").textContent = commun.menu[5];
-        document.getElementById("menu-apropos").textContent = commun.info;
-        document.getElementById("footer-mentions").textContent = commun.mentions;
-        document.getElementById("footer-contact").textContent = commun.contact;
-        document.getElementById("retour-offre").textContent = texte.retour + " >";
+        if (commun.menu) {
+            document.getElementById("menu-location").textContent = commun.menu[0];
+            document.getElementById("menu-ports").textContent = commun.menu[1];
+            document.getElementById("menu-compte").textContent = commun.menu[2];
+            document.getElementById("menu-historique").textContent = commun.menu[3];
+            document.getElementById("menu-faq").textContent = commun.menu[4];
+            document.getElementById("menu-avis").textContent = commun.menu[5];
+        }
+        if (commun.info) document.getElementById("menu-apropos").textContent = commun.info;
+        if (commun.mentions) document.getElementById("footer-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("footer-contact").textContent = commun.contact;
+        if (texte.retour) document.getElementById("retour-offre").textContent = texte.retour + " >";
 
         const params = new URLSearchParams(window.location.search);
         const id = parseInt(params.get("id"));
         const bateau = listeBateaux.find(b => b.id === id);
-        if (!bateau) return;
+        if (!bateau) {
+            document.getElementById("contenu").innerHTML = "<p style='text-align:center; margin-top:50px;'>Bateau non trouvé.</p>";
+            return;
+        }
 
         const avisList = JSON.parse(localStorage.getItem("avis") || "[]");
         const avisBateau = avisList.filter(a => a.titre === bateau.titre && !isNaN(a.etoiles));
@@ -123,11 +144,14 @@
             <div class="carrousel" data-id="${bateau.id}">
               <button class="prev" onclick="changeSlide(this, -1)">❮</button>
               <img src="${bateau.image1}" class="slide active">
-              <img src="${bateau.image2}" class="slide">
+              ${bateau.image2 ? `<img src="${bateau.image2}" class="slide">` : ''}
               <button class="next" onclick="changeSlide(this, 1)">❯</button>
             </div>
             <div class="texte-photo" style="color: floralwhite">
-              <p><span>${avisText}</span> <strong><a href="ports.html?port=${encodeURIComponent(bateau.port)}" style="margin-left: 80px; color: floralwhite;">${bateau.port}</a></strong></p>
+              <p>
+                <span id="btn-popup-avis" style="cursor: pointer; text-decoration: underline;" title="Cliquer pour voir les avis">${avisText}</span>
+                <strong><a href="ports.html?port=${encodeURIComponent(bateau.port)}" style="margin-left: 80px; color: floralwhite;">${bateau.port}</a></strong>
+              </p>
             </div>
           </div>
           <div class="background">
@@ -142,19 +166,25 @@
         <div class="detail-footer">
           <p class="detail-prix">${bateau.prix}</p>
           <div class="boutons-actions">
-            <a href="payement.html?id=${bateau.id}" class="btn-reserver">${texte.reserver}</a>
-            <button class="btn-favoris" onclick="ajouterAuxFavoris(${bateau.id})">${texte.favori}</button>
+            <a href="payement.html?id=${bateau.id}" class="btn-reserver">${texte.reserver || 'Réserver'}</a>
+            <button class="btn-favoris" onclick="ajouterAuxFavoris(${bateau.id})">${texte.favori || 'Favoris'}</button>
           </div>
         </div>`;
 
+        // Événement clic pour afficher la pop-up des avis
+        document.getElementById("btn-popup-avis").addEventListener("click", function() {
+            afficherPopupAvis(bateau.titre, langue);
+        });
+
         setTimeout(() => {
-            if (typeof ports !== 'undefined') {
+            if (typeof ports !== 'undefined' && Array.isArray(ports)) {
                 const port = ports.find(p => p.name.toLowerCase() === bateau.port.toLowerCase());
-                if (port) {
+                if (port && document.getElementById('map')) {
                     const map = L.map('map').setView(port.coords, 10);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '&copy; OpenStreetMap contributors'
                     }).addTo(map);
+
                     const popupContent = `
                 <div class="popup-content">
                   <h3>${port.name}</h3>
@@ -173,8 +203,39 @@
                     });
                 }
             }
-        }, 0);
+        }, 100);
     };
+
+    function afficherPopupAvis(titreBateau, langue) {
+        const tousLesAvis = JSON.parse(localStorage.getItem("avis") || "[]");
+        const avisBateau = tousLesAvis.filter(a => a.titre === titreBateau);
+
+        let contenuAvis = "";
+        if (avisBateau.length === 0) {
+            contenuAvis = `<p style="text-align:center; padding: 20px;">${langue === 'en' ? 'No reviews for this boat yet.' : 'Aucun avis pour ce bateau pour le moment.'}</p>`;
+        } else {
+            contenuAvis = avisBateau.map(a => `
+                <div style="border-bottom: 1px solid #eee; padding: 10px 0; text-align: left;">
+                    <p style="margin: 0; font-size: 1.1em;"><strong>${langue === 'en' ? 'Rating' : 'Note'} :</strong> ${'⭐'.repeat(a.etoiles)}</p>
+                    <p style="margin: 5px 0;"><strong>Commentaire :</strong> ${a.commentaire}</p>
+                    <p style="margin: 0; font-size: 0.85em; color: #777;"><em>Posté le ${a.date || 'N/A'}</em></p>
+                </div>
+            `).join('');
+        }
+
+        const popup = document.createElement("div");
+        popup.className = "popup-avis-overlay";
+        popup.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2000;";
+        popup.innerHTML = `
+            <div style="background: white; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <h2 style="margin-top: 0; color: #577550; font-family: 'DM Serif Display', serif;">${langue === 'en' ? 'Reviews for' : 'Avis sur'} ${titreBateau}</h2>
+                ${contenuAvis}
+                <br>
+                <button onclick="this.closest('.popup-avis-overlay').remove()" style="padding: 8px 18px; background: #ee9c72; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">${langue === 'en' ? 'Close' : 'Fermer'}</button>
+            </div>
+        `;
+        document.body.appendChild(popup);
+    }
 
     function changeSlide(button, direction) {
         const carrousel = button.closest('.carrousel');
