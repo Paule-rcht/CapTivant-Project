@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mes Favoris</title>
+    <title id="page-title">Mes Favoris</title>
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="favoris.css">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
@@ -10,70 +10,68 @@
     <script src="info-bateau.js" defer></script>
 </head>
 <body style="background-color: #c5d8d3;">
+
+<!-- Menu -->
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu-vert.png" alt="Menu">
 </div>
+
 <div id="menu-overlay" class="menu-overlay">
     <div class="menu-content" id="menu-links"></div>
 </div>
+
+<!-- En-tête -->
 <div class="top-right">
     <div class="language-selector">
         <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a id="lien-apropos" href="a-propos.php" style="color: #577550; text-decoration: none;">À propos</a>
-    <a id="compte-link" href="<?= $estConnecte ? 'MonCompte.php' : 'Connexion.php' ?>" class="top-infos" style="color: #577550;">Mon Compte</a>
+    <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
+    <a id="compte-link" href="Connexion.html" class="top-infos" style="color: #577550;">Mon Compte</a>
+    <a href="favoris.html">
+        <img src="images/panier.png" alt="Panier">
+    </a>
 </div>
 
 <div class="top-center">
     <div class="logo-block">
-        <a href="PageAccueil.php">
+        <a href="PageAccueil.html">
             <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
-        <h1 class="page-title">Mes Favoris</h1>
+        <h1 class="page-title" id="titre-page">Mes Favoris</h1>
     </div>
 </div>
 
-<div class="favoris-container">
-    <?php if (!$estConnecte): ?>
-    <p style="text-align:center; font-family: 'DM Serif Display';">Veuillez vous connecter pour voir vos favoris.</p>
-    <?php elseif (count($favoris) === 0): ?>
-    <p style="text-align:center; font-family: 'DM Serif Display';">Aucun favori enregistré.</p>
-    <?php else: ?>
-    <?php foreach ($favoris as $bateau): ?>
-    <div class="favori-card">
-        <img src="<?= htmlspecialchars($bateau['image1']) ?>" alt="<?= htmlspecialchars($bateau['titre']) ?>">
-        <h3><?= htmlspecialchars($bateau['titre']) ?></h3>
-        <p><?= htmlspecialchars($bateau['personnes']) ?> &bull; <?= htmlspecialchars($bateau['cabines']) ?></p>
-        <a href="info-bateau.php?id=<?= $bateau['id'] ?>" class="btn-voir">Voir l'offre</a>
-        <form method="post" action="favoris.php" onsubmit="return confirm('Retirer ce bateau des favoris ?');">
-            <input type="hidden" name="retirer_id" value="<?= $bateau['id'] ?>">
-            <button type="submit" class="btn-retirer">Retirer</button>
-        </form>
-    </div>
-    <?php endforeach; ?>
-    <?php endif; ?>
+<!-- Conteneur des favoris -->
+<div class="favoris-container" id="favoris-container">
+    <p id="texte-aucun-favori" style="text-align:center; width: 100%; font-family: 'DM Serif Display'; display: none;">
+        Aucun favori enregistré.
+    </p>
 </div>
 
+<!-- Pied de page -->
 <div class="bouton-bas">
-    <a href="MentionsLegales.php" class="bottom-text" style="color: #577550">Mentions légales</a>
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
     <span class="bottom-text" style="color: #577550">&bull;</span>
-    <a href="Contact.php" class="bottom-text" style="color: #577550">Contact</a>
+    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550">Contact</a>
 </div>
 
 <script>
     function toggleMenu() {
         document.getElementById("menu-overlay").classList.toggle("active");
     }
+
     function toggleLangDropdown() {
         const dropdown = document.getElementById("lang-dropdown");
         dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
     }
+
     function changerLangue(langue) {
         localStorage.setItem("langue", langue);
         location.reload();
     }
+
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
@@ -81,6 +79,81 @@
             dropdown.style.display = "none";
         }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const langue = localStorage.getItem("langue") || "fr";
+        const commun = langue === "en" ? CommunEN : CommunFR;
+        const favorisTxt = langue === "en" ? FavorisEN : FavorisFR;
+        const bateauxData = langue === "en" ? bateauxEN : bateaux;
+
+        // Textes et langues
+        document.title = favorisTxt.titre;
+        document.getElementById("page-title").textContent = favorisTxt.titre;
+        document.getElementById("titre-page").textContent = favorisTxt.titre;
+        document.getElementById("lien-apropos").textContent = commun.info;
+        document.getElementById("lien-mentions").textContent = commun.mentions;
+        document.getElementById("lien-contact").textContent = commun.contact;
+        document.getElementById("compte-link").textContent = commun.compte;
+
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+        document.getElementById("lang-dropdown").innerHTML = langue === "en"
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+
+        // Menu
+        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+        const menuContent = document.getElementById("menu-links");
+        menuContent.innerHTML = commun.menu.map((item, index) => `<a href="${liens[index]}.html">${item}</a>`).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+
+        // Charger les favoris depuis le localStorage
+        afficherFavoris(bateauxData, favorisTxt);
+    });
+
+    function afficherFavoris(bateauxData, favorisTxt) {
+        const container = document.getElementById("favoris-container");
+        const texteAucun = document.getElementById("texte-aucun-favori");
+        texteAucun.textContent = favorisTxt.aucun;
+
+        const favorisIds = JSON.parse(localStorage.getItem("favoris") || "[]");
+
+        if (favorisIds.length === 0) {
+            texteAucun.style.display = "block";
+            return;
+        }
+
+        texteAucun.style.display = "none";
+
+        favorisIds.forEach(id => {
+            const bateau = bateauxData.find(b => b.id === parseInt(id));
+            if (bateau) {
+                const card = document.createElement("div");
+                card.className = "favori-card";
+                card.setAttribute("data-id", bateau.id);
+                card.innerHTML = `
+                    <img class="image-bateau" src="${bateau.image1}" alt="${bateau.titre}">
+                    <h3 class="titre-bateau">${bateau.titre}</h3>
+                    <p class="infos-bateau">${bateau.personnes} &bull; ${bateau.cabines || ''}</p>
+                    <a href="info-bateau.html?id=${bateau.id}" class="btn-voir">${favorisTxt.voir}</a>
+                    <button class="btn-retirer" onclick="retirerFavoriLocal(${bateau.id})">${favorisTxt.retirer}</button>
+                `;
+                container.appendChild(card);
+            }
+        });
+    }
+
+    function retirerFavoriLocal(id) {
+        let favoris = JSON.parse(localStorage.getItem("favoris") || "[]");
+        favoris = favoris.filter(favId => parseInt(favId) !== parseInt(id));
+        localStorage.setItem("favoris", JSON.stringify(favoris));
+
+        const card = document.querySelector(`.favori-card[data-id="${id}"]`);
+        if (card) card.remove();
+
+        if (document.querySelectorAll(".favori-card").length === 0) {
+            const texteAucun = document.getElementById("texte-aucun-favori");
+            if (texteAucun) texteAucun.style.display = "block";
+        }
+    }
 </script>
 </body>
 </html>
