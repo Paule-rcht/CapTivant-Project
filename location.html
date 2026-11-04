@@ -5,13 +5,16 @@
     <title id="page-title">Location</title>
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="location.css">
+    <link rel="stylesheet" href="nav-barre.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <script src="info-bateau.js"></script>
+    <script src="info-bateau.js" defer></script>
+    <script src="ports-info.js" defer></script>
 </head>
 <body>
+<div class="navbar-barre"></div>
 <div class="top-left" onclick="toggleMenu()">
-    <img src="image/menu.png" alt="Menu">
+    <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -20,36 +23,54 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="image/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a id="a-propos-link" href="a-propos.html" class="top-infos">À propos</a>
-    <a id="compte-link" href="Connexion.html" class="top-infos">Mon compte</a>
+    <a id="a-propos-link" href="a-propos.html" class="top-infos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
+    <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
-        <img src="image/panier.png" alt="Panier">
+        <img src="images/panier.png" alt="Panier">
     </a>
 </div>
 
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="image/logo.png" alt="Logo">
+            <img src="images/logo.png" alt="Logo">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
         <h1 class="page-title" id="titre-page" style="color: #e0e0d5"></h1>
     </div>
+
     <div class="formulaire-connexion">
         <div class="background">
-            <div class="champ-double" style="gap: 20px;">
-                <input type="date" id="départ">
-                <input type="text" id="lieu" placeholder="">
+            <div class="champ-double" style="gap: 20px">
+                <div class="champ-date">
+                    <label for="départ" id="depart"></label>
+                    <input type="date" id="départ">
+                </div>
+                <div class="champ-date">
+                    <label for="arrivée" id="arrive"></label>
+                    <input type="date" id="arrivée">
+                </div>
             </div>
             <div class="champ-trois">
-                <button class="bouton-type" id="btn-moteur" onclick="selectType(this)"></button>
-                <button class="bouton-type" id="btn-voile" onclick="selectType(this)"></button>
+                <button type="button" class="bouton-type" id="btn-moteur" onclick="selectType(this)"></button>
+                <button type="button" class="bouton-type" id="btn-voile" onclick="selectType(this)"></button>
             </div>
+            <div class="champ-double" style="gap: 20px; position: relative;">
+                <div class="champ-date" style="position: relative;">
+                    <input type="text" id="lieu" placeholder="" autocomplete="off">
+                    <div id="suggestions-lieu" class="suggestions-box"></div>
+                </div>
+                <div class="champ-date">
+                    <input type="number" id="personnes" placeholder="" min="1">
+                </div>
+            </div>
+
             <div class="champ" style="padding: 22px;">
-                <a id="lien-recherche" href="offre.html" class="connexion"></a>
+                <br>
+                <button type="button" id="lien-recherche" class="connexion" onclick="verifierEtRediriger()" style="border: none; cursor: pointer;">Rechercher</button>
             </div>
         </div>
     </div>
@@ -63,8 +84,7 @@
 
 <script>
     function toggleMenu() {
-        const menu = document.getElementById("menu-overlay");
-        menu.classList.toggle("active");
+        document.getElementById("menu-overlay").classList.toggle("active");
     }
 
     function toggleLangDropdown() {
@@ -77,67 +97,136 @@
         location.reload();
     }
 
+    function getLangue() {
+        return localStorage.getItem("langue") || "fr";
+    }
+
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
         if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
             dropdown.style.display = "none";
         }
+
+        const suggestionsBox = document.getElementById("suggestions-lieu");
+        const lieuInput = document.getElementById("lieu");
+        if (suggestionsBox && lieuInput && !lieuInput.contains(event.target)) {
+            suggestionsBox.innerHTML = "";
+        }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-        const langue = localStorage.getItem("langue") || "fr";
-        const texte = langue === "en" ? LocationEN : LocationFR;
-        const commun = langue === "en" ? CommunEN : CommunFR;
+        const langue = getLangue();
+        const texte = langue === "en" ? (typeof LocationEN !== "undefined" ? LocationEN : {}) : (typeof LocationFR !== "undefined" ? LocationFR : {});
+        const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-        document.getElementById("page-title").textContent = texte.titre;
-        document.getElementById("titre-page").textContent = texte.titre;
-        document.getElementById("lieu").placeholder = texte.lieu;
-        document.getElementById("btn-moteur").textContent = texte.moteur;
-        document.getElementById("btn-voile").textContent = texte.voile;
-        document.getElementById("lien-recherche").textContent = texte.recherche;
+        if (texte.titre) {
+            document.getElementById("page-title").textContent = texte.titre;
+            document.getElementById("titre-page").textContent = texte.titre;
+        }
+        if (texte.depart) document.getElementById("depart").textContent = texte.depart;
+        if (texte.arrive) document.getElementById("arrive").textContent = texte.arrive;
+        if (texte.lieu) document.getElementById("lieu").placeholder = texte.lieu;
+        if (texte.personnes) document.getElementById("personnes").placeholder = texte.personnes;
+        if (texte.moteur) document.getElementById("btn-moteur").textContent = texte.moteur;
+        if (texte.voile) document.getElementById("btn-voile").textContent = texte.voile;
+        if (texte.recherche) document.getElementById("lien-recherche").textContent = texte.recherche;
 
-        document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-mentions").href = "MentionsLegales.html";
-        document.getElementById("lien-contact").textContent = commun.contact;
-        document.getElementById("lien-contact").href = "Contact.html";
-        document.getElementById("a-propos-link").textContent = commun.info;
-        document.getElementById("compte-link").textContent = commun.compte;
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
+        if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
 
-        document.getElementById("current-lang").src = langue === "en" ? "image/drapeau-anglais.png" : "image/drapeau-francais.png";
+        // Statut utilisateur connecté
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const lienCompte = document.getElementById("lien-compte");
+        if (lienCompte) {
+            if (user && user.firstName) {
+                lienCompte.textContent = user.firstName;
+                lienCompte.setAttribute("href", "MonCompte.html");
+            } else if (commun.compte) {
+                lienCompte.textContent = commun.compte;
+                lienCompte.setAttribute("href", "Connexion.html");
+            }
+        }
+
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === "en"
-            ? `<img src="image/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="image/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        const menuContent = document.getElementById("menu-links");
-        menuContent.innerHTML = commun.menu.map((item, index) => {
-            return `<a href="${liens[index]}.html">${item}</a>`;
-        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        if (commun.menu) {
+            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            const menuContent = document.getElementById("menu-links");
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}.html">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
+
+        // Configuration autocomplétion lieux
+        const lieuInput = document.getElementById("lieu");
+        if (lieuInput) {
+            lieuInput.addEventListener("input", function () {
+                const input = this.value.toLowerCase();
+                const suggestionsBox = document.getElementById("suggestions-lieu");
+                suggestionsBox.innerHTML = "";
+
+                if (typeof ports !== "undefined" && Array.isArray(ports)) {
+                    const suggestions = input === ""
+                        ? ports
+                        : ports.filter(port => port.name.toLowerCase().startsWith(input));
+
+                    suggestions.forEach(port => {
+                        const div = document.createElement("div");
+                        div.textContent = port.name;
+                        div.style.padding = "8px";
+                        div.style.cursor = "pointer";
+                        div.onclick = function () {
+                            document.getElementById("lieu").value = port.name;
+                            suggestionsBox.innerHTML = "";
+                        };
+                        suggestionsBox.appendChild(div);
+                    });
+                }
+            });
+        }
     });
 
     let typeSelectionne = "";
     function selectType(button) {
-        const boutonClique = button.textContent.trim().toLowerCase();
-        const lienRecherche = document.getElementById("lien-recherche");
-
         if (button.classList.contains("active")) {
             button.classList.remove("active");
             typeSelectionne = "";
-            lienRecherche.href = "offre.html";
         } else {
             document.querySelectorAll('.bouton-type').forEach(btn => btn.classList.remove('active'));
             button.classList.add("active");
-            typeSelectionne = boutonClique;
 
-            if (typeSelectionne === "moteur" || typeSelectionne === "motor") {
-                lienRecherche.href = "offre.html?type=moteur";
-            } else if (typeSelectionne === "à voile" || typeSelectionne === "sailing") {
-                lienRecherche.href = "offre.html?type=voile";
-            } else {
-                lienRecherche.href = "offre.html";
+            if (button.id === "btn-moteur") {
+                typeSelectionne = "moteur";
+            } else if (button.id === "btn-voile") {
+                typeSelectionne = "voile";
             }
         }
+    }
+
+    function verifierEtRediriger() {
+        const depart = document.getElementById("départ").value;
+        const arrivee = document.getElementById("arrivée").value;
+        const lieu = document.getElementById("lieu").value.trim();
+        const personnes = document.getElementById("personnes").value.trim();
+
+        let url = "offre.html?";
+        if (lieu !== "") {
+            url += `port=${encodeURIComponent(lieu)}&`;
+        }
+        if (typeSelectionne) {
+            url += `type=${typeSelectionne}&`;
+        }
+        if (personnes !== "") {
+            url += `personnes=${encodeURIComponent(personnes)}&`;
+        }
+
+        url += `depart=${depart}&arrivee=${arrivee}`;
+        window.location.href = url;
     }
 </script>
 </body>

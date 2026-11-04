@@ -13,20 +13,23 @@
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu-vert.png" alt="Menu">
 </div>
+
 <div id="menu-overlay" class="menu-overlay">
     <div class="menu-content" id="menu-links"></div>
 </div>
+
 <div class="top-right">
     <div class="language-selector">
         <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #577550; text-decoration: none;">A propos</a>
-    <a id="lien-compte" class="lien-langue" data-page="Connexion" style="color: #577550; text-decoration: none;">Mon Compte</a>
+    <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
+    <a id="lien-compte" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
         <img src="images/panier.png" alt="Panier">
     </a>
 </div>
+
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
@@ -36,13 +39,16 @@
         <h1 class="page-title" id="titre-page">Historique</h1>
     </div>
 </div>
-<div id="historique-container" class="historique-container"></div>
+
+<div id="historique-container" class="historique-container" style="max-width: 900px; margin: 20px auto; padding: 20px;"></div>
+
 <div class="bouton-bas">
     <button id="btn-clear" onclick="viderHistorique()" class="btn-vider-historique">Vider l'historique</button>
-    <a id="lien-mentions" class="bottom-text lien-langue" data-page="MentionsLegales" style="color: #577550">Mentions légales</a>
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
     <span class="bottom-text" style="color: #577550">&bull;</span>
-    <a id="lien-contact" class="bottom-text lien-langue" data-page="Contact" style="color: #577550">Contact</a>
+    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550">Contact</a>
 </div>
+
 <script>
     function getLangue() {
         return localStorage.getItem("langue") || "fr";
@@ -72,13 +78,15 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         const langue = getLangue();
-        const texte = langue === "en" ? HistoriqueEN : HistoriqueFR;
-        const commun = langue === "en" ? CommunEN : CommunFR;
-        const bateauxSource = langue === "en" ? bateauxEN : bateaux;
+        const texte = langue === "en" ? (typeof HistoriqueEN !== "undefined" ? HistoriqueEN : {}) : (typeof HistoriqueFR !== "undefined" ? HistoriqueFR : {});
+        const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
+        const bateauxSource = langue === "en" ? (typeof bateauxEN !== "undefined" ? bateauxEN : []) : (typeof bateaux !== "undefined" ? bateaux : []);
 
-        document.title = texte.titre;
-        document.getElementById("titre-page").textContent = texte.titre;
-        document.getElementById("btn-clear").textContent = texte.vider;
+        document.title = texte.titre || "Historique";
+        document.getElementById("titre-page").textContent = texte.titre || "Historique";
+        const btnClear = document.getElementById("btn-clear");
+        if (btnClear) btnClear.textContent = texte.vider || "Vider l'historique";
+
         document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
 
         const langDropdown = document.getElementById("lang-dropdown");
@@ -86,54 +94,83 @@
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
-        const menuContent = document.getElementById("menu-links");
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        menuContent.innerHTML = commun.menu.map((item, index) => {
-            return `<a class="lien-langue" data-page="${liens[index]}">${item}</a>`;
-        }).join('') + '<span onclick="toggleMenu()" class="close-menu">&times;</span>';
+        // Menu de navigation
+        if (commun.menu) {
+            const menuContent = document.getElementById("menu-links");
+            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}.html">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">&times;</span>';
+        }
 
-        document.getElementById("lien-apropos").textContent = commun.info;
-        document.getElementById("lien-compte").textContent = commun.compte;
-        document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-contact").textContent = commun.contact;
+        if (commun.info) document.getElementById("lien-apropos").textContent = commun.info;
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
 
-        document.querySelectorAll(".lien-langue").forEach(lien => {
-            const page = lien.getAttribute("data-page");
-            lien.setAttribute("href", `${page}.html`);
-        });
+        // Gestion de l'affichage du Compte selon localStorage
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const lienCompte = document.getElementById("lien-compte");
+        if (lienCompte) {
+            if (user && user.firstName) {
+                lienCompte.textContent = user.firstName;
+                lienCompte.setAttribute("href", "MonCompte.html");
+            } else if (commun.compte) {
+                lienCompte.textContent = commun.compte;
+                lienCompte.setAttribute("href", "Connexion.html");
+            }
+        }
 
+        // Affichage de l'historique des réservations
         const historique = JSON.parse(localStorage.getItem("historique") || "[]");
+        const avisExistants = JSON.parse(localStorage.getItem("avis") || "[]");
         const container = document.getElementById("historique-container");
 
         if (historique.length === 0) {
-            container.innerHTML = `<p style='text-align:center;'>${texte.vide}</p>`;
+            container.innerHTML = `<p style='text-align:center;'>${texte.vide || "Aucune réservation dans l'historique."}</p>`;
         } else {
-            historique.forEach(bateau => {
-                const original = bateaux.find(b => b.titre === bateau.titre);
-                const traduit = bateauxSource.find(b => b.id === original?.id);
+            container.innerHTML = "";
+            historique.forEach(item => {
+                // Recherche des données traduisibles du bateau
+                const original = (typeof bateaux !== "undefined") ? bateaux.find(b => b.titre === item.titre || b.id === item.id) : null;
+                const traduit = bateauxSource.find(b => b.id === (original ? original.id : item.id)) || item;
 
-                if (traduit) {
-                    container.innerHTML += `
-            <div class="historique-card">
-              <h2>${traduit.titre}</h2>
-              <p><strong>${texte.port} :</strong> ${traduit.port}</p>
-              <p><strong>${texte.personnes} :</strong> ${traduit.personnes}</p>
-              <p><strong>${texte.cabines} :</strong> ${traduit.cabines}</p>
-              <p><strong>${texte.longueur} :</strong> ${traduit.longueur}</p>
-              <p><strong>${texte.prix} :</strong> ${traduit.prix}</p>
-              <img src="${traduit.image1}" alt="${traduit.titre}">
-              <button onclick="laisserAvis('${traduit.titre}')">${texte.avis}</button>
-            </div>
-          `;
+                const avisConcerne = avisExistants.find(a => a.titre === traduit.titre);
+
+                let avisHTML = "";
+                if (avisConcerne) {
+                    avisHTML = `
+                        <div class="avis" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.6); border-radius: 5px;">
+                            <p><strong>${texte.commentaire || "Commentaire"} :</strong> <span>${avisConcerne.commentaire}</span></p>
+                            <p><strong>${texte.note || "Note"} :</strong> <span>${'⭐'.repeat(avisConcerne.etoiles)}</span></p>
+                            <p><em>Posté le ${avisConcerne.date}</em></p>
+                        </div>
+                    `;
+                } else {
+                    avisHTML = `<button class="btn-avis" onclick="laisserAvis('${traduit.titre}')">${texte.avis || "Avis"}</button>`;
                 }
+
+                container.innerHTML += `
+                    <div class="historique-card" style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px;">
+                        <h2>${traduit.titre}</h2>
+                        <p><strong>${texte.port || "Port"} :</strong> ${traduit.port || 'N/A'}</p>
+                        <p><strong>${texte.personnes || "Personnes"} :</strong> ${traduit.personnes || 'N/A'}</p>
+                        <p><strong>${texte.cabines || "Cabines"} :</strong> ${traduit.cabines || 'N/A'}</p>
+                        <p><strong>${texte.longueur || "Longueur"} :</strong> ${traduit.longueur || 'N/A'}</p>
+                        <p><strong>${texte.prix || "Prix"} :</strong> ${traduit.prix || 'N/A'}</p>
+                        ${traduit.image1 ? `<img src="${traduit.image1}" alt="${traduit.titre}" style="max-width: 100%; border-radius: 5px;">` : ''}
+                        <br><br>
+                        ${avisHTML}
+                    </div>
+                `;
             });
         }
     });
 
     function laisserAvis(titreBateau) {
-        const avisExistants = JSON.parse(localStorage.getItem("avis") || "[]");
+        const langue = getLangue();
+        const texte = langue === "en" ? (typeof HistoriqueEN !== "undefined" ? HistoriqueEN : {}) : (typeof HistoriqueFR !== "undefined" ? HistoriqueFR : {});
 
-        // Vérifie si un avis existe déjà pour ce bateau
+        const avisExistants = JSON.parse(localStorage.getItem("avis") || "[]");
         const dejaCommente = avisExistants.some(a => a.titre === titreBateau);
         if (dejaCommente) {
             alert("Vous avez déjà laissé un avis pour ce bateau.");
@@ -142,23 +179,24 @@
 
         const popup = document.createElement("div");
         popup.className = "avis-popup-overlay";
+        popup.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;";
         popup.innerHTML = `
-        <div class="avis-popup-bulle">
-            <h2>Merci pour votre réservation !</h2>
-            <p>Laissez-nous un avis sur votre expérience :</p>
-            <textarea id="commentaire" placeholder="Votre commentaire..."></textarea><br><br>
-            <label>Note :</label>
-            <select id="etoiles">
-                <option value="1">⭐</option>
-                <option value="2">⭐⭐</option>
-                <option value="3">⭐⭐⭐</option>
-                <option value="4">⭐⭐⭐⭐</option>
-                <option value="5">⭐⭐⭐⭐⭐</option>
-            </select><br><br>
-            <button onclick="validerAvis('${titreBateau}')">Valider l'avis</button>
-            <button onclick="fermerAvisPopup()">Fermer</button>
-        </div>
-    `;
+            <div class="avis-popup-bulle" style="background: white; padding: 20px; border-radius: 10px; max-width: 400px; width: 90%; text-align: center;">
+                <h2>${texte.popup_titre || "Merci pour votre réservation !"}</h2>
+                <p>${texte.popup_texte || "Laissez-nous un avis sur votre expérience :"}</p>
+                <textarea id="commentaire" placeholder="${texte.popup_commentaire || "Votre commentaire..."}" style="width: 100%; height: 80px; margin-bottom: 10px;"></textarea>
+                <label>${texte.popup_label_note || "Note"} :</label>
+                <select id="etoiles" style="margin-bottom: 15px;">
+                    <option value="1">⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="5" selected>⭐⭐⭐⭐⭐</option>
+                </select><br>
+                <button onclick="validerAvis('${titreBateau}')" style="padding: 8px 15px; margin-right: 5px;">${texte.popup_bouton_valider || "Valider"}</button>
+                <button onclick="fermerAvisPopup()" style="padding: 8px 15px;">${texte.popup_bouton_fermer || "Fermer"}</button>
+            </div>
+        `;
         document.body.appendChild(popup);
     }
 
@@ -166,8 +204,11 @@
         const commentaire = document.getElementById("commentaire").value.trim();
         const etoiles = parseInt(document.getElementById("etoiles").value);
 
+        const langue = getLangue();
+        const texte = langue === "en" ? (typeof HistoriqueEN !== "undefined" ? HistoriqueEN : {}) : (typeof HistoriqueFR !== "undefined" ? HistoriqueFR : {});
+
         if (!commentaire || isNaN(etoiles)) {
-            alert("Merci de remplir tous les champs.");
+            alert(texte.alerte_champs_vides || "Merci de remplir tous les champs.");
             return;
         }
 
@@ -176,12 +217,13 @@
             titre: titreBateau,
             commentaire: commentaire,
             etoiles: etoiles,
-            date: new Date().toLocaleDateString()
+            date: new Date().toLocaleDateString("fr-FR")
         });
 
         localStorage.setItem("avis", JSON.stringify(avis));
-        alert("Merci ! Votre avis a été enregistré.");
+        alert(texte.alerte_succes || "Merci ! Votre avis a été enregistré.");
         fermerAvisPopup();
+        location.reload();
     }
 
     function fermerAvisPopup() {

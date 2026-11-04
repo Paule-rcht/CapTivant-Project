@@ -5,13 +5,15 @@
     <title id="page-title">Mentions légales</title>
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="MentionsLegales.css">
+    <link rel="stylesheet" href="nav-barre.css">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-    <script src="info-bateau.js"></script>
+    <script src="info-bateau.js" defer></script>
 </head>
 <body style="background-color: #c5d8d3;">
+<div class="navbar-barre"></div>
 <div class="top-left" onclick="toggleMenu()">
-    <img src="image/menu-vert.png" alt="Menu">
+    <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -19,24 +21,27 @@
 </div>
 
 <div class="top-right">
-    <div class="language-selector">
-        <img id="current-lang" src="image/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
-        <div id="lang-dropdown" class="lang-dropdown"></div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="language-selector">
+            <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
+            <div id="lang-dropdown" class="lang-dropdown" style="position: absolute;"></div>
+        </div>
+
+        <a id="a-propos-link" href="a-propos.html" style="color: #e0e0d5; text-decoration: none; white-space: nowrap;">À propos</a>
+        <a id="mon-compte-link" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
+        <a href="favoris.html">
+            <img src="images/panier.png" alt="Panier" style="min-width: 20px;">
+        </a>
     </div>
-    <a id="a-propos-link" href="a-propos.html" style="color: #577550; text-decoration: none;">A propos</a>
-    <a id="mon-compte-link" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
-    <a href="favoris.html">
-        <img src="image/panier.png" alt="Panier">
-    </a>
 </div>
 
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="image/logo-transparent.png" alt="Logo" style="width: 30px;">
+            <img src="images/logo.png" alt="Logo">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
-        <h1 class="page-title" id="titre-page"></h1>
+        <h1 class="page-title" id="titre-page">Mentions légales</h1>
     </div>
 
     <div id="texte-legale" class="texte-legale" style="max-width: 800px; margin-top: 100px; padding: 20px; font-family: 'DM Serif Display', serif; font-size: 0.95em; line-height: 1.6em; color: #335533; text-align: justify;">
@@ -65,6 +70,10 @@
         location.reload();
     }
 
+    function getLangue() {
+        return localStorage.getItem("langue") || "fr";
+    }
+
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
@@ -74,30 +83,54 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-        const langue = localStorage.getItem("langue") || "fr";
-        const texte = langue === "en" ? MentionsEN : MentionsFR;
-        const commun = langue === "en" ? CommunEN : CommunFR;
+        const langue = getLangue();
+        const texte = langue === "en" ? (typeof MentionsEN !== "undefined" ? MentionsEN : {}) : (typeof MentionsFR !== "undefined" ? MentionsFR : {});
+        const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-        document.getElementById("page-title").textContent = texte.titre;
-        document.getElementById("titre-page").textContent = texte.titre;
-        document.getElementById("texte-legale").innerHTML = texte.texte;
+        if (texte.titre) {
+            document.getElementById("page-title").textContent = texte.titre;
+            document.getElementById("titre-page").textContent = texte.titre;
+        }
 
-        document.getElementById("lien-contact").textContent = commun.contact;
-        document.getElementById("lien-contact").href = "Contact.html";
-        document.getElementById("a-propos-link").textContent = commun.info;
-        document.getElementById("mon-compte-link").textContent = commun.compte;
+        const conteneurTexte = document.getElementById("texte-legale");
+        if (texte.texte) {
+            conteneurTexte.innerHTML = texte.texte;
+        } else {
+            conteneurTexte.innerHTML = langue === "en"
+                ? "<p>Cap'Tivant is a boat rental platform. All rights reserved.</p>"
+                : "<p>Cap'Tivant est une plateforme de location de bateaux. Tous droits réservés.</p>";
+        }
 
-        document.getElementById("current-lang").src = langue === "en" ? "image/drapeau-anglais.png" : "image/drapeau-francais.png";
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
+        if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
+
+        // Gestion du bouton Compte selon localStorage
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const lienCompte = document.getElementById("mon-compte-link");
+        if (lienCompte) {
+            if (user && user.firstName) {
+                lienCompte.textContent = user.firstName;
+                lienCompte.setAttribute("href", "MonCompte.html");
+            } else if (commun.compte) {
+                lienCompte.textContent = commun.compte;
+                lienCompte.setAttribute("href", "Connexion.html");
+            }
+        }
+
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+
         const langDropdown = document.getElementById("lang-dropdown");
         langDropdown.innerHTML = langue === "en"
-            ? `<img src="image/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="image/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        const menuContent = document.getElementById("menu-links");
-        menuContent.innerHTML = commun.menu.map((item, index) => {
-            return `<a href="${liens[index]}.html">${item}</a>`;
-        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        if (commun.menu) {
+            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            const menuContent = document.getElementById("menu-links");
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}.html">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
     });
 </script>
 </body>

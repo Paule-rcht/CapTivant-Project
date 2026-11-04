@@ -11,7 +11,6 @@
 </head>
 <body style="background-color: #c5d8d3;">
 
-<!-- Menu -->
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu-vert.png" alt="Menu">
 </div>
@@ -20,7 +19,6 @@
     <div class="menu-content" id="menu-links"></div>
 </div>
 
-<!-- En-tête -->
 <div class="top-right">
     <div class="language-selector">
         <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
@@ -43,14 +41,14 @@
     </div>
 </div>
 
-<!-- Conteneur des favoris -->
+
 <div class="favoris-container" id="favoris-container">
     <p id="texte-aucun-favori" style="text-align:center; width: 100%; font-family: 'DM Serif Display'; display: none;">
         Aucun favori enregistré.
     </p>
 </div>
 
-<!-- Pied de page -->
+
 <div class="bouton-bas">
     <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
     <span class="bottom-text" style="color: #577550">&bull;</span>
@@ -100,7 +98,7 @@
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
-        // Menu
+
         const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
         const menuContent = document.getElementById("menu-links");
         menuContent.innerHTML = commun.menu.map((item, index) => `<a href="${liens[index]}.html">${item}</a>`).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';

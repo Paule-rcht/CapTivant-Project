@@ -2,23 +2,26 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
-    <title id="page-title"></title>
+    <title id="page-title">Paiement</title>
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="payement.css">
+    <link rel="stylesheet" href="nav-barre.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <script src="info-bateau.js"></script>
+    <script src="info-bateau.js" defer></script>
 </head>
-<body>
+<body style="background-color: #c5d8d3;">
+<div class="navbar-barre"></div>
+
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu.png" alt="Menu">
 </div>
 
 <!-- Fil d’Ariane -->
 <div class="top-left retour-offre">
-    <a id="lien-retour-offre">Offre &gt;</a>
+    <a id="lien-retour-offre" href="offre.html">Offre &gt;</a>
     <a id="lien-info-bateau"><label id="titre-bateau-label" style="cursor: pointer;"></label><span> &gt;</span></a>
-    <label style="font-size: 0.85em; color: rgba(224,224,213,0.65); font-family: 'DM Serif Display', serif;">Reservation</label>
+    <label style="font-size: 0.85em; color: rgba(224,224,213,0.65); font-family: 'DM Serif Display', serif;">Réservation</label>
 </div>
 
 <!-- Logo et titre -->
@@ -31,77 +34,79 @@
         <h1 class="page-title" id="titre-bateau" style="color: #E0E0D5">Paiement</h1>
     </div>
 </div>
+
 <div id="menu-overlay" class="menu-overlay">
-    <div class="menu-content">
-        <a href="location.html">LOCATION</a>
-        <a href="ports.html">NOS PORTS</a>
-        <a href="MonCompte.html">MON COMPTE</a>
-        <a href="historique.html">HISTORIQUE</a>
-        <a href="faq.html">FAQ</a>
-        <a href="avis.html">AVIS</a>
-        <span onclick="toggleMenu()" class="close-menu">✕</span>
-    </div>
+    <div class="menu-content" id="menu-links"></div>
 </div>
 
 <!-- Lien langue / compte -->
 <div class="top-right">
     <div class="language-selector">
         <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
-        <div id="lang-dropdown" class="lang-dropdown">
-            <img id="fr-option" src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">
-            <img id="en-option" src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">
-        </div>
+        <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a href="a-propos.html" style="color: #E0E0D5; text-decoration: none;">À propos</a>
-    <a href="Connexion.html" style="color: #E0E0D5; text-decoration: none;">Mon Compte</a>
+    <a id="a-propos-link" href="a-propos.html" style="color: #E0E0D5; text-decoration: none;">À propos</a>
+    <a id="lien-compte" href="Connexion.html" style="color: #E0E0D5; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
         <img src="images/panier.png" alt="panier">
     </a>
 </div>
+
 <div class="background">
     <div class="conteneur-info">
         <div class="carte-bateau" id="carte-bateau">
-            <h2 id="titre-fiche"></h2>
-            <p><strong>Port :</strong> <span id="port"></span></p>
-            <p><strong>Nombre de personnes maximum :</strong> <span id="personnes"></span></p>
-            <p><strong>Cabines :</strong> <span id="cabines"></span></p>
-            <p><strong>Longueur :</strong> <span id="longueur"></span></p>
-            <p><strong>Prix :</strong> <span id="prix"></span></p>
-            <p><strong>Avis :</strong> <span id="avis"></span></p>
+            <h2 id="titre-fiche">Chargement...</h2>
+            <p><strong id="lbl-port">Port :</strong> <span id="port"></span></p>
+            <p><strong id="lbl-personnes">Nombre de personnes maximum :</strong> <span id="personnes"></span></p>
+            <p><strong id="lbl-cabines">Cabines :</strong> <span id="cabines"></span></p>
+            <p><strong id="lbl-longueur">Longueur :</strong> <span id="longueur"></span></p>
+            <p><strong id="lbl-prix">Prix :</strong> <span id="prix"></span></p>
+            <p><strong id="lbl-avis">Avis :</strong> <span id="avis"></span></p>
+
+            <div style="margin-top: 15px; color: #f29066; text-align: center">
+                <label for="date_debut" id="lbl-date-debut">Date de départ :</label><br>
+                <input type="date" id="date_debut" required><br><br>
+
+                <label for="date_fin" id="lbl-date-fin">Date de retour :</label><br>
+                <input type="date" id="date_fin" required>
+            </div>
         </div>
 
         <div>
             <div class="select-personnes-container">
-                <label for="select-personnes"><strong>Sélectionnez le nombre de personnes :</strong></label>
+                <label for="select-personnes" id="lbl-select-pers"><strong>Sélectionnez le nombre de personnes :</strong></label>
                 <select id="select-personnes"></select>
+                <p id="erreur-nb-personnes" style="color: red; text-align: center; display: none;">
+                    Veuillez sélectionner le nombre de personnes.
+                </p>
             </div>
 
             <div class="enfant-a-bord">
                 <input type="checkbox" id="enfant-checkbox" />
-                <label for="enfant-checkbox">Enfant à bord</label>
+                <label for="enfant-checkbox" id="lbl-enfant">Enfant à bord</label>
             </div>
 
             <div class="options-bateau">
-                <h3>Options supplémentaires</h3>
+                <h3 id="lbl-options-titre">Options supplémentaires</h3>
                 <br>
-                <label><input type="checkbox" class="option-checkbox" data-prix="200"> Skipper (+200€)</label><br>
-                <label><input type="checkbox" class="option-checkbox" data-prix="80"> Nettoyage final (+80€)</label><br>
-                <label><input type="checkbox" class="option-checkbox" data-prix="50"> Literie et serviettes (+50€)</label>
+                <label><input type="checkbox" class="option-checkbox" value="skipper" data-prix="200"> <span id="lbl-skipper">Skipper (+200€)</span></label><br>
+                <label><input type="checkbox" class="option-checkbox" value="nettoyage" data-prix="80"> <span id="lbl-nettoyage">Nettoyage final (+80€)</span></label><br>
+                <label><input type="checkbox" class="option-checkbox" value="literie" data-prix="50"> <span id="lbl-literie">Literie et serviettes (+50€)</span></label>
             </div>
         </div>
     </div>
 </div>
-<div class="total-et-paiement" id="zone-paiement">
-    <br>
-    <p><strong>Total à payer :</strong> <span id="total-prix">0€</span></p>
-    <button id="btn-payer">Payer</button>
+
+<div class="total-et-paiement" id="zone-paiement" style="margin-top: 20px; text-align: center;">
+    <p><strong id="lbl-total">Total à payer :</strong> <span id="total-prix">0€</span></p>
+    <button type="button" id="btn-payer" style="border: none; cursor: pointer;">Payer</button>
 </div>
 
 <!-- Pied de page -->
 <div class="bouton-bas" style="background: transparent">
-    <a href="MentionsLegales.html" class="bottom-text">Mentions légales</a>
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text">Mentions légales</a>
     <span class="bottom-text">•</span>
-    <a href="Contact.html" class="bottom-text">Contact</a>
+    <a id="lien-contact" href="Contact.html" class="bottom-text">Contact</a>
 </div>
 
 <script>
@@ -110,72 +115,144 @@
         menu.classList.toggle("active");
     }
 
-    const avisList = JSON.parse(localStorage.getItem("avis") || "[]");
+    function toggleLangDropdown() {
+        const dropdown = document.getElementById("lang-dropdown");
+        dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    }
+
+    function changerLangue(langue) {
+        localStorage.setItem("langue", langue);
+        location.reload();
+    }
+
+    function getLangue() {
+        return localStorage.getItem("langue") || "fr";
+    }
+
+    let avisList = [];
+    try {
+        avisList = JSON.parse(localStorage.getItem("avis") || "[]");
+    } catch (e) {
+        avisList = [];
+    }
 
     function calculerMoyenneAvis(titre) {
-        const avisBateau = avisList.filter(a => a.titre === titre && !isNaN(a.etoiles));
+        const avisBateau = avisList.filter(a => a && a.titre === titre && !isNaN(a.etoiles));
         const nbAvis = avisBateau.length;
         if (nbAvis === 0) return { moyenne: 0, total: 0 };
         const somme = avisBateau.reduce((acc, cur) => acc + Number(cur.etoiles), 0);
-        const moyenne = (somme / nbAvis).toFixed(1);
-        return { moyenne, total: nbAvis };
+        return { moyenne: (somme / nbAvis), total: nbAvis };
     }
 
     function genererAvisTexte(note, totalAvis) {
-        if (totalAvis === 0) return `⭐ - (0 avis)`;
-        return `⭐ ${parseFloat(note).toFixed(1)}/5 (${totalAvis} avis)`;
+        if (totalAvis === 0) return `⭐ (0 avis)`;
+        const noteAffichee = (note % 1 === 0) ? note.toFixed(0) : note.toFixed(1);
+        return `⭐ ${noteAffichee}/5 (${totalAvis} avis)`;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const id = parseInt(params.get("id"));
-    const categorie = params.get("categorie");
-    const lienRetour = document.getElementById("lien-retour-offre");
-    lienRetour.href = categorie ? `offre.html?categorie=${categorie}` : "offre.html";
-
-    const langue = localStorage.getItem("langue") || "fr";
-    const dataBateaux = langue === "en" ? bateauxEN : bateaux;
-    const texte = langue === "en" ? PaiementEN : PaiementFR;
-    const texteCommun = langue === "en" ? CommunEN : CommunFR;
-
-    // Mise à jour des textes communs
-    document.querySelector('a[href="a-propos.html"]').textContent = texteCommun.info;
-    document.querySelector('a[href="Connexion.html"]').textContent = texteCommun.compte;
-    document.querySelector('a[href="MentionsLegales.html"]').textContent = texteCommun.mentions;
-    document.querySelector('a[href="Contact.html"]').textContent = texteCommun.contact;
-
-    // Mise à jour du menu gauche si tu l'as
-    const menuItems = document.querySelectorAll('#menu-overlay .menu-content a');
-    menuItems.forEach((link, index) => {
-        if (texteCommun.menu[index]) {
-            link.textContent = texteCommun.menu[index];
+    document.addEventListener("click", function(event) {
+        const dropdown = document.getElementById("lang-dropdown");
+        const icon = document.getElementById("current-lang");
+        if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
+            dropdown.style.display = "none";
         }
     });
 
-    localStorage.setItem("langue", langue);
+    document.addEventListener("DOMContentLoaded", function () {
+        const langue = getLangue();
+        const dataBateaux = langue === "en" ? (typeof bateauxEN !== "undefined" ? bateauxEN : []) : (typeof bateaux !== "undefined" ? bateaux : []);
+        const texte = langue === "en" ? (typeof PaiementEN !== "undefined" ? PaiementEN : {}) : (typeof PaiementFR !== "undefined" ? PaiementFR : {});
+        const texteCommun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-    document.title = texte.titre;
-    document.getElementById("titre-bateau").textContent = texte.titre;
-    document.querySelector(".retour-offre a").textContent = texte.offre + " >";
-    document.querySelector(".retour-offre label").textContent = texte.reservation;
+        // Textes globaux
+        if (texte.titre) {
+            document.title = texte.titre;
+            document.getElementById("titre-bateau").textContent = texte.titre;
+        }
+        if (texteCommun.info) document.getElementById("a-propos-link").textContent = texteCommun.info;
+        if (texteCommun.mentions) document.getElementById("lien-mentions").textContent = texteCommun.mentions;
+        if (texteCommun.contact) document.getElementById("lien-contact").textContent = texteCommun.contact;
 
+        // Statut Utilisateur
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const lienCompte = document.getElementById("lien-compte");
+        if (lienCompte) {
+            if (user && user.firstName) {
+                lienCompte.textContent = user.firstName;
+                lienCompte.setAttribute("href", "MonCompte.html");
+            } else if (texteCommun.compte) {
+                lienCompte.textContent = texteCommun.compte;
+                lienCompte.setAttribute("href", "Connexion.html");
+            }
+        }
 
-    if (typeof dataBateaux !== "undefined") {
-        const bateau = dataBateaux.find(b => b.id === id);
+        // Langue & Drapeau
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+        document.getElementById("lang-dropdown").innerHTML = langue === "en"
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+
+        // Menu latéral
+        if (texteCommun.menu) {
+            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            const menuContent = document.getElementById("menu-links");
+            menuContent.innerHTML = texteCommun.menu.map((item, index) => {
+                return `<a href="${liens[index]}.html">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
+
+        // Paramètres URL
+        const params = new URLSearchParams(window.location.search);
+        const id = parseInt(params.get("id"));
+        const categorie = params.get("categorie");
+
+        const lienRetour = document.getElementById("lien-retour-offre");
+        if (lienRetour) {
+            lienRetour.href = categorie ? `offre.html?type=${encodeURIComponent(categorie)}` : "offre.html";
+        }
+
+        // Traduction des labels
+        if (texte.date_debut) document.getElementById("lbl-date-debut").textContent = texte.date_debut;
+        if (texte.date_fin) document.getElementById("lbl-date-fin").textContent = texte.date_fin;
+        if (texte.selectLabel) document.getElementById("lbl-select-pers").innerHTML = `<strong>${texte.selectLabel}</strong>`;
+        if (texte.enfantLabel) document.getElementById("lbl-enfant").textContent = texte.enfantLabel;
+        if (texte.optionsTitre) document.getElementById("lbl-options-titre").textContent = texte.optionsTitre;
+
+        const optionLabels = document.querySelectorAll('.options-bateau label');
+        if (optionLabels.length > 0 && texte.skipper) document.getElementById("lbl-skipper").textContent = texte.skipper;
+        if (optionLabels.length > 1 && texte.nettoyage) document.getElementById("lbl-nettoyage").textContent = texte.nettoyage;
+        if (optionLabels.length > 2 && texte.literie) document.getElementById("lbl-literie").textContent = texte.literie;
+
+        if (texte.total) document.getElementById("lbl-total").textContent = texte.total;
+        if (texte.payer) document.getElementById("btn-payer").textContent = texte.payer;
+
+        if (texte.port) document.getElementById("lbl-port").textContent = texte.port + " :";
+        if (texte.personnes) document.getElementById("lbl-personnes").textContent = texte.personnes + " :";
+        if (texte.cabines) document.getElementById("lbl-cabines").textContent = texte.cabines + " :";
+        if (texte.longueur) document.getElementById("lbl-longueur").textContent = texte.longueur + " :";
+        if (texte.prix) document.getElementById("lbl-prix").textContent = texte.prix + " :";
+        if (texte.avis) document.getElementById("lbl-avis").textContent = texte.avis + " :";
+
+        // Recherche du bateau
+        const bateau = dataBateaux.find(b => b && b.id === id);
+
         if (bateau) {
             const { moyenne, total } = calculerMoyenneAvis(bateau.titre);
             document.getElementById("titre-bateau-label").textContent = bateau.titre;
             document.getElementById("titre-fiche").textContent = bateau.titre;
-            document.getElementById("port").textContent = bateau.port;
-            document.getElementById("personnes").textContent = bateau.personnes;
-            document.getElementById("cabines").textContent = bateau.cabines;
-            document.getElementById("longueur").textContent = bateau.longueur;
-            document.getElementById("prix").textContent = bateau.prix;
+            document.getElementById("port").textContent = bateau.port || 'N/A';
+            document.getElementById("personnes").textContent = bateau.personnes || 'N/A';
+            document.getElementById("cabines").textContent = bateau.cabines || 'N/A';
+            document.getElementById("longueur").textContent = bateau.longueur || 'N/A';
+            document.getElementById("prix").textContent = bateau.prix || 'N/A';
             document.getElementById("avis").textContent = genererAvisTexte(moyenne, total);
-            document.getElementById("lien-info-bateau").href = `info-bateau.html?id=${bateau.id}`;
 
+            const lienInfoBateau = document.getElementById("lien-info-bateau");
+            if (lienInfoBateau) lienInfoBateau.href = `info-bateau.html?id=${bateau.id}`;
 
-            const chiffres = bateau.prix.match(/\d+/g);
-            const prixBase = chiffres ? parseInt(chiffres.join("")) : 0;
+            // Calcul du prix
+            const chiffres = bateau.prix ? String(bateau.prix).match(/\d+/g) : null;
+            const prixBase = chiffres ? parseInt(chiffres.join(""), 10) : 0;
             const totalPrixElem = document.getElementById("total-prix");
             totalPrixElem.textContent = prixBase + "€";
 
@@ -185,96 +262,95 @@
                     let total = prixBase;
                     options.forEach(opt => {
                         if (opt.checked) {
-                            total += parseInt(opt.getAttribute("data-prix"));
+                            total += parseInt(opt.getAttribute("data-prix"), 10);
                         }
                     });
                     totalPrixElem.textContent = total + "€";
                 });
             });
 
-            const nbPersonnesMax = parseInt(bateau.personnes.match(/\d+/));
-            const select = document.getElementById("select-personnes");
-            select.innerHTML = "";
-            const defaultOption = document.createElement("option");
-            defaultOption.disabled = true;
-            defaultOption.selected = true;
-            defaultOption.textContent = texte.choisirNombre;
-            select.appendChild(defaultOption);
-            for (let i = 1; i <= nbPersonnesMax; i++) {
-                const option = document.createElement("option");
-                option.value = i;
-                option.textContent = i + (i === 1 ? " personne" : " personnes");
-                select.appendChild(option);
-            }
+            // Sélecteur personnes max
+            const nbPersonnesMatch = bateau.personnes ? String(bateau.personnes).match(/\d+/) : null;
+            const nbPersonnesMax = nbPersonnesMatch ? parseInt(nbPersonnesMatch[0], 10) : 1;
+            regenererOptionsPersonnes(nbPersonnesMax, texte);
 
-            document.querySelector('label[for="select-personnes"]').innerHTML = `<strong>${texte.selectLabel}</strong>`;
-            document.querySelector('label[for="enfant-checkbox"]').textContent = texte.enfantLabel;
-            document.querySelector('.options-bateau h3').textContent = texte.optionsTitre;
-
-            const optionLabels = document.querySelectorAll('.option-checkbox');
-            optionLabels[0].nextSibling.textContent = " " + texte.skipper;
-            optionLabels[1].nextSibling.textContent = " " + texte.nettoyage;
-            optionLabels[2].nextSibling.textContent = " " + texte.literie;
-
-            document.querySelector('.total-et-paiement p strong').textContent = texte.total;
-            document.getElementById("btn-payer").textContent = texte.payer;
-
+            // Événement du bouton Payer
             document.getElementById("btn-payer").addEventListener("click", () => {
-                payer(id);
+                payer(bateau, texte);
             });
-        }
-    }
-
-    function payer(id) {
-        const data = langue === "en" ? bateauxEN : bateaux;
-        const bateau = data.find(b => b.id === id);
-        if (!bateau) return;
-        let historique = JSON.parse(localStorage.getItem("historique") || "[]");
-        if (!historique.some(h => Number(h.id) === Number(bateau.id))) {
-            historique.push(bateau);
-            localStorage.setItem("historique", JSON.stringify(historique));
-            alert(texte.merci);
-            window.location.href = "historique.html";
         } else {
-            alert(texte.dejaReserve);
-        }
-    }
-</script>
-<script>
-    function toggleLangDropdown() {
-        const dropdown = document.getElementById("lang-dropdown");
-        dropdown.innerHTML = "";
-
-        const currentLang = localStorage.getItem("langue") || "fr";
-        const newLang = currentLang === "fr" ? "en" : "fr";
-        const newFlag = document.createElement("img");
-        newFlag.src = newLang === "fr" ? "images/drapeau-francais.png" : "images/drapeau-anglais.png";
-        newFlag.alt = newLang === "fr" ? "Français" : "Anglais";
-        newFlag.classList.add("drapeau-option");
-        newFlag.onclick = () => changerLangue(newLang);
-
-        dropdown.appendChild(newFlag);
-        dropdown.style.display = "block";
-    }
-
-    function changerLangue(langue) {
-        localStorage.setItem("langue", langue);
-        location.reload();
-    }
-
-    window.onload = function () {
-        const currentLang = document.getElementById("current-lang");
-        const langue = localStorage.getItem("langue") || "fr";
-        currentLang.src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
-    };
-
-    document.addEventListener("click", function(event) {
-        const dropdown = document.getElementById("lang-dropdown");
-        const icon = document.getElementById("current-lang");
-        if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
-            dropdown.style.display = "none";
+            console.error(`Bateau avec ID ${id} non trouvé.`);
+            document.getElementById("titre-fiche").textContent = "Bateau non trouvé";
+            document.getElementById("port").textContent = '-';
+            document.getElementById("avis").textContent = '-';
         }
     });
+
+    function regenererOptionsPersonnes(nbMax, texte) {
+        const select = document.getElementById("select-personnes");
+        if (!select) return;
+
+        select.innerHTML = "";
+
+        const defaultOption = document.createElement("option");
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        defaultOption.textContent = texte.choisirNombre || "Choisir...";
+        select.appendChild(defaultOption);
+
+        for (let i = 1; i <= nbMax; i++) {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = i + (i === 1 ? (texte.personneSingulier || " personne") : (texte.personnePluriel || " personnes"));
+            select.appendChild(option);
+        }
+    }
+
+    function payer(bateau, texte) {
+        const dateDebut = document.getElementById("date_debut").value;
+        const dateFin = document.getElementById("date_fin").value;
+        const selectPers = document.getElementById("select-personnes");
+        const erreurNbPersonnes = document.getElementById("erreur-nb-personnes");
+
+        if (!dateDebut || !dateFin) {
+            alert(texte.champsObligatoires || (getLangue() === "en" ? "Please select departure and return dates." : "Veuillez sélectionner les dates de départ et de retour."));
+            return;
+        }
+
+        if (!selectPers || !selectPers.value || selectPers.selectedIndex === 0) {
+            erreurNbPersonnes.style.display = "block";
+            return;
+        } else {
+            erreurNbPersonnes.style.display = "none";
+        }
+
+        let historique = JSON.parse(localStorage.getItem("historique") || "[]");
+        const dejaReserve = historique.some(h => Number(h.id) === Number(bateau.id));
+
+        if (!dejaReserve) {
+            const optionsChoisies = [];
+            document.querySelectorAll(".option-checkbox:checked").forEach(opt => {
+                optionsChoisies.push(opt.value);
+            });
+
+            const reservation = {
+                ...bateau,
+                date_debut: dateDebut,
+                date_fin: dateFin,
+                personnes_choisies: selectPers.value,
+                enfant_a_bord: document.getElementById("enfant-checkbox").checked,
+                options: optionsChoisies
+            };
+
+            historique.push(reservation);
+            localStorage.setItem("historique", JSON.stringify(historique));
+
+            alert(texte.merci || (getLangue() === "en" ? "Thank you for your reservation!" : "Merci pour votre réservation !"));
+            window.location.href = "historique.html";
+        } else {
+            alert(texte.dejaReserve || (getLangue() === "en" ? "You have already reserved this boat." : "Vous avez déjà réservé ce bateau."));
+        }
+    }
 </script>
 </body>
 </html>

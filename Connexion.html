@@ -64,19 +64,52 @@
       const menuContent = document.getElementById("menu-links");
       const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
       menuContent.innerHTML = commun.menu.map((item, index) => {
-        return `<a class="lien-langue" data-page="${liens[index]}">${item}</a>`;
+        return `<a href="${liens[index]}.html">${item}</a>`;
       }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
 
-      document.querySelectorAll(".lien-langue").forEach(lien => {
-        const page = lien.getAttribute("data-page");
-        lien.setAttribute("href", `${page}.html`);
-      });
-
-      // Mise à jour du lien À propos avec traduction
       const lienApropos = document.getElementById("lien-apropos");
       lienApropos.textContent = commun.info;
       lienApropos.setAttribute("href", "a-propos.html");
     });
+
+    // Traitement de la connexion côté navigateur
+    function simulerConnexion(event) {
+      event.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const errorMsg = document.getElementById("error-message");
+
+      if (!email || !password) {
+        errorMsg.textContent = "Veuillez remplir tous les champs.";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      // Enregistre l'utilisateur connecté dans localStorage
+      const user = {
+        email: email,
+        firstName: email.split('@')[0] || "Utilisateur"
+      };
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Redirection vers MonCompte
+      window.location.href = "MonCompte.html";
+    }
+
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = document.querySelector(`[onclick="togglePasswordVisibility('${inputId}')"]`);
+
+      if (input.type === "password") {
+        input.type = "text";
+        icon.src = "images/eye-open.png";
+        icon.alt = "Masquer mot de passe";
+      } else {
+        input.type = "password";
+        icon.src = "images/eye-closed.png";
+        icon.alt = "Afficher mot de passe";
+      }
+    }
   </script>
 </head>
 <body>
@@ -93,7 +126,7 @@
     <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
-  <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #577550; text-decoration: none;">À propos</a>
+  <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
   <a href="favoris.html">
     <img src="images/panier.png" alt="Panier">
   </a>
@@ -108,27 +141,33 @@
     <h1 class="page-title" id="titre-page">Connexion</h1>
   </div>
 
-  <div class="formulaire-connexion">
+  <form onsubmit="simulerConnexion(event)" class="formulaire-connexion">
     <div class="champ">
       <img src="images/email.png" alt="email">
-      <input type="email" id="email" placeholder="Entrez votre adresse mail">
+      <input type="email" id="email" placeholder="Entrez votre adresse mail" required>
     </div>
     <div class="champ">
       <img src="images/mdp.png" alt="mot de passe">
-      <input type="password" id="password" placeholder="Entrez votre mot de passe">
+      <div class="input-container" style="display: flex; align-items: center; width: 100%;">
+        <input type="password" id="password" placeholder="Entrez votre mot de passe" required style="flex-grow: 1;">
+        <img src="images/eye-closed.png" alt="Afficher mot de passe" class="eye-icon" onclick="togglePasswordVisibility('password')" style="cursor: pointer; margin-left: 5px;">
+      </div>
     </div>
-  </div>
-  <div class="connexion" id="btn-connexion">Se connecter</div>
+    <button type="submit" class="connexion" id="btn-connexion" style="border: none; cursor: pointer;">Se connecter</button>
+  </form>
+
+  <p id="error-message" style="color:red; text-align:center; display:none; margin-top: 10px;"></p>
+
   <div class="logo-block">
-    <a id="inscription-lien" href="inscription.html" class="inscription" style="text-decoration: none;">Inscription</a>
-    <a id="mdp-lien" href="mdp-oublier.html" class="mdp-oublier" style="text-decoration: none;">Mot de passe oublié</a>
+    <a id="inscription-lien" href="Inscription.html" class="inscription" style="text-decoration: none; font-size: 1.2em">Inscription</a>
+    <a id="mdp-lien" href="mdp-oublier.html" class="mdp-oublier" style="text-decoration: none; font-size: 1.2em">Mot de passe oublié</a>
   </div>
 </div>
 
 <div class="bouton-bas">
-  <a id="lien-mentions" class="bottom-text lien-langue" data-page="MentionsLegales" style="color: #577550">Mentions légales</a>
+  <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
   <span class="bottom-text" style="color: #577550">•</span>
-  <a id="lien-contact" class="bottom-text lien-langue" data-page="Contact" style="color: #577550">Contact</a>
+  <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550">Contact</a>
 </div>
 </body>
 </html>

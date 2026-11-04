@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="inscription.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <script src="info-bateau.js"></script>
+    <script src="info-bateau.js" defer></script>
 </head>
 <body>
 <div class="top-left" onclick="toggleMenu()">
@@ -36,33 +36,86 @@
             <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
-        <h1 class="page-title" id="titre-page"></h1>
-    </div>
-
-    <div class="formulaire-inscription">
-        <div class="champ">
-            <br>
-            <input type="text" id="nom" placeholder="Nom">
-            <input type="text" id="prenom" placeholder="Prénom">
-            <img src="images/email.png" alt="email">
-            <input type="email" id="email" placeholder="Entrez votre adresse mail">
-            <img src="images/mdp.png" alt="mot de passe">
-            <input type="password" id="mdp" placeholder="Entrez votre mot de passe">
-            <input type="password" id="mdp-confirm" placeholder="Confirmez votre mot de passe">
-        </div>
-    </div>
-    <div class="conditions-general">
-        <label class="checkbox-container">
-            <input type="checkbox" id="mentions" required>
-            <span class="checkmark"></span>
-            <span class="conditions" id="conditions-text">Accepter les conditions d'utilisations</span>
-        </label>
-    </div>
-    <div class="inscription" id="btn-inscription">S'inscrire</div>
-    <div class="logo-block">
-        <a href="Connexion.html" class="connexion" id="lien-connexion">Se connecter</a>
+        <h1 class="page-title" id="titre-page">Inscription</h1>
     </div>
 </div>
+
+<main class="contenu-scrollable">
+    <form onsubmit="traiterInscription(event)" class="formulaire-inscription">
+        <div class="champ">
+            <br>
+            <div class="champ-obligatoire">
+                <span class="etoile">*</span>
+                <input type="text" id="nom" placeholder="Nom" required>
+            </div>
+
+            <div class="champ-obligatoire">
+                <span class="etoile">*</span>
+                <input type="text" id="prenom" placeholder="Prénom" required>
+            </div>
+
+            <img src="images/email.png" alt="email">
+
+            <div class="champ-obligatoire">
+                <span class="etoile">*</span>
+                <input type="email" id="email" placeholder="Entrez votre adresse mail" required>
+            </div>
+
+            <img src="images/mdp.png" alt="mot de passe">
+
+            <div class="champ-obligatoire">
+                <span class="etoile" style="margin-left: 30px">*</span>
+                <div class="password-container" style="display: flex; align-items: center; width: 100%;">
+                    <input style="margin-left: 30px; flex-grow: 1;" type="password" id="mdp" placeholder="Entrez votre mot de passe" required>
+                    <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp')" style="cursor: pointer;">
+                </div>
+            </div>
+
+            <div class="champ-obligatoire">
+                <span class="etoile" style="margin-left: 30px">*</span>
+                <div class="password-container" style="display: flex; align-items: center; width: 100%;">
+                    <input style="margin-left: 30px; flex-grow: 1;" type="password" id="mdp-confirm" placeholder="Confirmez votre mot de passe" required>
+                    <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp-confirm')" style="cursor: pointer;">
+                </div>
+            </div>
+        </div>
+
+        <div class="conditions-general">
+            <div class="champ-obligatoire">
+                <span class="etoile">*</span>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="mentions" required>
+                    <span class="checkmark"></span>
+                    <span class="conditions" id="conditions-text">Accepter les conditions d'utilisations</span>
+                </label>
+            </div>
+        </div>
+        <div class="conditions-general">
+            <label class="checkbox-container">
+                <input type="checkbox" id="newsletter">
+                <span class="checkmark"></span>
+                <span class="conditions" id="newsletter-text">Je souhaite m'inscrire à la newsletter</span>
+            </label>
+        </div>
+
+        <div class="conditions-general">
+            <br>
+            <button type="submit" class="inscription" id="btn-inscription" style="border: none; cursor: pointer;">S'inscrire</button>
+        </div>
+    </form>
+
+    <p id="error-message" style="color: red; text-align: center; display: none; margin-top: 10px;"></p>
+
+    <div class="logo-block" style="font-size: 1.2em">
+        <a href="Connexion.html" class="connexion" id="lien-connexion">Se connecter</a>
+    </div>
+    <div class="conditions-general">
+        <div class="champ-obligatoire">
+            <span class="etoile">*</span>
+            <span class="conditions" id="champs">Ce champ est obligatoire</span>
+        </div>
+    </div>
+</main>
 
 <div class="bouton-bas">
     <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
@@ -109,11 +162,11 @@
         document.getElementById("conditions-text").textContent = texte.conditions;
         document.getElementById("btn-inscription").textContent = texte.bouton;
         document.getElementById("lien-connexion").textContent = texte.lienConnexion;
+        document.getElementById("champs").textContent = texte.champs;
+        document.getElementById("newsletter-text").textContent = texte.newsletter;
 
         document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-mentions").href = "MentionsLegales.html";
         document.getElementById("lien-contact").textContent = commun.contact;
-        document.getElementById("lien-contact").href = "Contact.html";
 
         document.getElementById("a-propos-link").textContent = commun.info;
         document.getElementById("mon-compte-link").textContent = commun.compte;
@@ -131,48 +184,56 @@
         }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
     });
 
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.querySelector(`[onclick="togglePasswordVisibility('${inputId}')"]`);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.src = "images/eye-open.png";
+            icon.alt = "Masquer mot de passe";
+        } else {
+            input.type = "password";
+            icon.src = "images/eye-closed.png";
+            icon.alt = "Afficher mot de passe";
+        }
+    }
 
-    document.getElementById("btn-inscription").addEventListener("click", function() {
-        // Récupération des valeurs du formulaire
-        const nom = document.getElementById("nom").value;
-        const prenom = document.getElementById("prenom").value;
-        const email = document.getElementById("email").value;
+    function traiterInscription(event) {
+        event.preventDefault();
+
+        const nom = document.getElementById("nom").value.trim();
+        const prenom = document.getElementById("prenom").value.trim();
+        const email = document.getElementById("email").value.trim();
         const mdp = document.getElementById("mdp").value;
         const mdpConfirm = document.getElementById("mdp-confirm").value;
         const mentions = document.getElementById("mentions").checked;
+        const errorMsg = document.getElementById("error-message");
 
-        // Validation simple
         if (!nom || !prenom || !email || !mdp || !mdpConfirm) {
-            alert("Veuillez remplir tous les champs");
+            errorMsg.textContent = "Veuillez remplir tous les champs.";
+            errorMsg.style.display = "block";
             return;
         }
 
         if (mdp !== mdpConfirm) {
-            alert("Les mots de passe ne correspondent pas");
+            errorMsg.textContent = "Les mots de passe ne correspondent pas.";
+            errorMsg.style.display = "block";
             return;
         }
 
         if (!mentions) {
-            alert("Veuillez accepter les conditions d'utilisation");
+            errorMsg.textContent = "Veuillez accepter les conditions d'utilisation.";
+            errorMsg.style.display = "block";
             return;
         }
 
-        // Enregistrement des données (simplifié - en réalité vous enverriez ça à un serveur)
-        const userData = {
-            nom,
-            prenom,
-            email,
-            mdp
-        };
-
-        // Stockage local (temporaire)
-        localStorage.setItem('userData', JSON.stringify(userData));
+        // Sauvegarde de l'utilisateur dans le localStorage
+        const userData = { nom, prenom, email, mdp };
+        localStorage.setItem("userData", JSON.stringify(userData));
 
         // Redirection vers la page de connexion
         window.location.href = "Connexion.html";
-    });
-
-
+    }
 </script>
 </body>
 </html>

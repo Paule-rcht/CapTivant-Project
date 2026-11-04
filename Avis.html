@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
   <script src="info-bateau.js" defer></script>
 </head>
-<body>
+<body style="background-color: #c5d8d3;">
 <div class="top-left" onclick="toggleMenu()">
   <img src="images/menu-vert.png" alt="Menu">
 </div>
@@ -23,8 +23,8 @@
     <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
-  <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #577550; text-decoration: none;">À propos</a>
-  <a id="lien-compte" class="lien-langue" data-page="Connexion" style="color: #577550; text-decoration: none;">Mon compte</a>
+  <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
+  <a id="lien-compte" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon compte</a>
   <a href="favoris.html">
     <img src="images/panier.png" alt="Panier">
   </a>
@@ -40,14 +40,14 @@
   </div>
 </div>
 
-<div class="background" id="avis-container">
+<div class="background" id="avis-container" style="max-width: 800px; margin: 20px auto; padding: 20px;">
   <!-- Avis affichés ici -->
 </div>
 
 <div class="bouton-bas">
-  <a id="lien-mentions" class="bottom-text lien-langue" data-page="MentionsLegales" style="color: #577550;">Mentions légales</a>
+  <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550;">Mentions légales</a>
   <span class="bottom-text" style="color: #577550;">•</span>
-  <a id="lien-contact" class="bottom-text lien-langue" data-page="Contact" style="color: #577550;">Contact</a>
+  <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;">Contact</a>
 </div>
 
 <script>
@@ -87,7 +87,7 @@
     document.querySelector(".page-title").textContent = texte.titre;
 
     const currentLang = document.getElementById("current-lang");
-    currentLang.src = langue === "en" ? "/images/drapeau-anglais.png" : "/images/drapeau-francais.png";
+    currentLang.src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
 
     const langDropdown = document.getElementById("lang-dropdown");
     langDropdown.innerHTML = langue === "en"
@@ -95,34 +95,51 @@
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
     document.getElementById("lien-apropos").textContent = commun.info;
-    document.getElementById("lien-compte").textContent = commun.compte;
     document.getElementById("lien-mentions").textContent = commun.mentions;
     document.getElementById("lien-contact").textContent = commun.contact;
 
+    // Gestion du lien Compte selon l'état de connexion
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const lienCompte = document.getElementById("lien-compte");
+    if (user && user.firstName) {
+      lienCompte.textContent = user.firstName;
+      lienCompte.setAttribute("href", "MonCompte.html");
+    } else {
+      lienCompte.textContent = commun.compte;
+      lienCompte.setAttribute("href", "Connexion.html");
+    }
+
+    // Génération du menu de navigation
     const menuContent = document.getElementById("menu-links");
     const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
     menuContent.innerHTML = commun.menu.map((item, index) => {
-      return `<a class="lien-langue" data-page="${liens[index]}">${item}</a>`;
+      return `<a href="${liens[index]}.html">${item}</a>`;
     }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
 
-    document.querySelectorAll(".lien-langue").forEach(lien => {
-      const page = lien.getAttribute("data-page");
-      lien.setAttribute("href", `${page}.html`);
-    });
+    // Récupération des avis
+    let avis = JSON.parse(localStorage.getItem("avis") || "[]");
 
-    const avis = JSON.parse(localStorage.getItem("avis") || "[]");
+    // Exemple d'avis par défaut si aucun avis n'existe encore
+    if (avis.length === 0) {
+      avis = [
+        { id: 1, titre: "Oceanis 41", etoiles: 5, commentaire: "Superbe expérience, bateau très propre et bien entretenu !", date: "15/10/2026" },
+        { id: 2, titre: "Sun Odyssey 349", etoiles: 4, commentaire: "Très bonne journée en mer, équipage au top.", date: "28/09/2026" }
+      ];
+      localStorage.setItem("avis", JSON.stringify(avis));
+    }
+
     const container = document.getElementById("avis-container");
 
     if (avis.length === 0) {
-      container.innerHTML = `<p style='text-align:center;'>${texte.aucunAvis}</p>`;
+      container.innerHTML = `<p style='text-align:center;'>${texte.aucunAvis || 'Aucun avis enregistré.'}</p>`;
     } else {
       container.innerHTML = avis.map(entry => `
-        <div class="avis-card">
-          <h3>${entry.titre}</h3>
-          <p class="etoiles">${'⭐'.repeat(entry.etoiles)}</p>
-          <p class="commentaire">"${entry.commentaire}"</p>
-          <p class="date">${entry.date}</p>
-        </div>
+        <a class="avis-card" href="info-bateau.html?id=${entry.id || 1}" style="text-decoration: none; color: inherit; display: block; margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px;">
+          <h3 style="margin: 0 0 5px 0;">${entry.titre}</h3>
+          <p class="etoiles" style="margin: 5px 0;">${'⭐'.repeat(entry.etoiles || entry.rating || 5)}</p>
+          <p class="commentaire" style="font-style: italic; margin: 5px 0;">"${entry.commentaire || entry.comment}"</p>
+          <p class="date" style="font-size: 0.85em; color: #666; margin: 5px 0 0 0;">${entry.date || '01/11/2026'}</p>
+        </a>
       `).join('');
     }
   });

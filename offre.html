@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="offre.css">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-    <script src="info-bateau.js"></script>
+    <script src="info-bateau.js" defer></script>
 </head>
 <body style="background-color: #c5d8d3;">
 
@@ -49,9 +49,9 @@
 
 <!-- Pied de page -->
 <div class="bouton-bas">
-    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color : #577550;"></a>
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color : #577550;">Mentions légales</a>
     <span class="bottom-text" style="color: #577550;">•</span>
-    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;"></a>
+    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;">Contact</a>
 </div>
 
 <script>
@@ -70,6 +70,10 @@
         location.reload();
     }
 
+    function getLangue() {
+        return localStorage.getItem("langue") || "fr";
+    }
+
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
@@ -79,36 +83,58 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-        const langue = localStorage.getItem("langue") || "fr";
-        const texte = langue === "en" ? OffreEN : OffreFR;
-        const commun = langue === "en" ? CommunEN : CommunFR;
-        const bateauxData = langue === "en" ? bateauxEN : bateaux;
+        const langue = getLangue();
+        const texte = langue === "en" ? (typeof OffreEN !== "undefined" ? OffreEN : {}) : (typeof OffreFR !== "undefined" ? OffreFR : {});
+        const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
+        const bateauxData = langue === "en" ? (typeof bateauxEN !== "undefined" ? bateauxEN : []) : (typeof bateaux !== "undefined" ? bateaux : []);
 
-        document.getElementById("page-title").textContent = texte.titre;
-        document.getElementById("titre-page").textContent = texte.titre;
-        document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-contact").textContent = commun.contact;
-        document.getElementById("a-propos-link").textContent = commun.info;
-        document.getElementById("compte-link").textContent = commun.compte;
+        if (texte.titre) {
+            document.getElementById("page-title").textContent = texte.titre;
+            document.getElementById("titre-page").textContent = texte.titre;
+        }
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
+        if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
+
+        // Gestion Compte / Utilisateur connecté
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const lienCompte = document.getElementById("compte-link");
+        if (lienCompte) {
+            if (user && user.firstName) {
+                lienCompte.textContent = user.firstName;
+                lienCompte.setAttribute("href", "MonCompte.html");
+            } else if (commun.compte) {
+                lienCompte.textContent = commun.compte;
+                lienCompte.setAttribute("href", "Connexion.html");
+            }
+        }
 
         document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === "en"
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        const menuContent = document.getElementById("menu-links");
-        menuContent.innerHTML = commun.menu.map((item, index) => {
-            return `<a href="${liens[index]}.html">${item}</a>`;
-        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        if (commun.menu) {
+            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            const menuContent = document.getElementById("menu-links");
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}.html">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
 
         // Filtrage dynamique selon l'URL
         const params = new URLSearchParams(window.location.search);
         const portParam = params.get('port');
-        const type = params.get('type');
+        const typeParam = params.get('type');
+        const nbPersonnes = params.get('personnes');
         const container = document.getElementById('carrousel-container');
 
         let filteredBateaux = bateauxData;
+
+        // Filtre sur le nombre de personnes
+        if (nbPersonnes) {
+            filteredBateaux = filteredBateaux.filter(b => parseInt(b.personnes) >= parseInt(nbPersonnes));
+        }
 
         // Filtre sur le port
         if (portParam) {
@@ -116,13 +142,13 @@
         }
 
         // Filtre sur le type (moteur / voile)
-        if (type === "moteur" || type === "voile") {
-            filteredBateaux = filteredBateaux.filter(b => b.categorie === type);
+        if (typeParam === "moteur" || typeParam === "voile") {
+            filteredBateaux = filteredBateaux.filter(b => (b.categorie === typeParam || b.type === typeParam));
         }
 
         filteredBateaux.forEach((bateau, index) => {
             const div = document.createElement("div");
-            div.className = `carrousel ${bateau.categorie}`;
+            div.className = `carrousel ${bateau.categorie || bateau.type}`;
             div.setAttribute('data-id', index);
             div.innerHTML = `
                 <button class="prev" onclick="changeSlide(this, -1)">❮</button>
@@ -144,7 +170,7 @@
         });
 
         if (filteredBateaux.length === 0) {
-            container.innerHTML = "<p style='text-align:center; font-size:1.2em; margin-top: 50px;'>Aucun bateau trouvé pour ce filtre.</p>";
+            container.innerHTML = `<p style='text-align:center; font-size:1.2em; margin-top: 50px;'>${texte.aucunBateau || 'Aucun bateau trouvé pour ce filtre.'}</p>`;
         }
     });
 

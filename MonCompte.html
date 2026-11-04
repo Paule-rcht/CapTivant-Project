@@ -5,13 +5,15 @@
     <title id="page-title">Mon Compte</title>
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="MonCompte.css">
+    <link rel="stylesheet" href="nav-barre.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <script src="info-bateau.js"></script>
+    <script src="info-bateau.js" defer></script>
 </head>
-<body>
+<body style="background-color: #c5d8d3;">
+<div class="navbar-barre"></div>
 <div class="top-left" onclick="toggleMenu()">
-    <img src="image/menu-vert.png" alt="Menu">
+    <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -20,57 +22,62 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="image/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a id="a-propos-link" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
+    <a id="a-propos-link" href="a-propos.html" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <a href="favoris.html">
-        <img src="image/panier.png" alt="Panier">
+        <img src="images/panier.png" alt="Panier">
     </a>
 </div>
 
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="image/logo-transparent.png" alt="Logo" style="width: 30px;">
+            <img src="images/logo.png" alt="Logo">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
-        <h1 class="page-title" id="titre-page"></h1>
+        <h1 class="page-title" id="titre-page">Mon Compte</h1>
     </div>
 
-    <div class="formulaire-connexion">
+    <p id="message-statut" style="text-align: center; font-weight: bold; display: none; margin-top: 10px;"></p>
+
+    <form onsubmit="enregistrerModifications(event)" class="formulaire-connexion">
         <div class="champ-msg" style="margin-top: 40px;">
             <label id="label-infos" for="nom">Mes informations</label>
-            <label id="label-adresse" for="adresse">Mon adresse</label>
+            <label id="label-adresse" for="rue">Mon adresse</label>
         </div>
         <div class="champ-double">
-            <input type="text" id="nom" placeholder="Nom">
-            <input type="text" id="adresse" placeholder="Adresse">
+            <input type="text" id="nom" placeholder="Nom" required>
+            <input type="text" id="rue" placeholder="Rue">
         </div>
         <div class="champ-double">
-            <input type="text" id="prenom" placeholder="Prénom">
+            <input type="text" id="prenom" placeholder="Prénom" required>
             <input type="text" id="code-postal" placeholder="Code postal">
         </div>
         <div class="champ-double">
-            <input type="text" id="mail" placeholder="E-mail">
+            <input type="email" id="mail" placeholder="E-mail" required>
             <input type="text" id="ville" placeholder="Ville">
         </div>
         <div class="champ-double">
-            <input type="text" id="mdp" placeholder="Mot de passe">
+            <input type="text" id="telephone" placeholder="Numéro de téléphone">
             <input type="text" id="pays" placeholder="Pays">
         </div>
-        <div class="champ-double">
-            <input type="text" id="num" placeholder="Numero de téléphone">
-        </div>
-    </div>
 
-    <div class="connexion" id="btn-modifier">Modifier</div>
+        <div style="text-align: center; margin-top: 20px; font-size: 20px;">
+            <button type="submit" class="connexion" id="btn-modifier" style="border: none; cursor: pointer;">Modifier</button>
+        </div>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button type="button" onclick="seDeconnecter()" style="color: #ee9c72; font-family: 'DM Serif Display', cursive; cursor: pointer; background: none; border: none; outline: none; font-size: 20px;" id="btn-deconnexion">Se déconnecter</button>
+    </div>
 </div>
 
 <div class="bouton-bas">
-    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style=" color: #577550">Mentions légales</a>
-    <span class="bottom-text" style=" color: #577550">•</span>
-    <a id="lien-contact" href="Contact.html" class="bottom-text" style=" color: #577550">Contact</a>
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
+    <span class="bottom-text" style="color: #577550">•</span>
+    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550">Contact</a>
 </div>
 
 <script>
@@ -89,6 +96,10 @@
         location.reload();
     }
 
+    function getLangue() {
+        return localStorage.getItem("langue") || "fr";
+    }
+
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
@@ -98,40 +109,91 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-        const langue = localStorage.getItem("langue") || "fr";
-        const texte = langue === "en" ? CompteEN : CompteFR;
-        const commun = langue === "en" ? CommunEN : CommunFR;
+        const langue = getLangue();
+        const texte = langue === "en" ? (typeof CompteEN !== "undefined" ? CompteEN : {}) : (typeof CompteFR !== "undefined" ? CompteFR : {});
+        const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-        document.getElementById("page-title").textContent = texte.titre;
-        document.getElementById("titre-page").textContent = texte.titre;
-        document.getElementById("label-infos").textContent = texte.labelInfos;
-        document.getElementById("label-adresse").textContent = texte.labelAdresse;
-        document.getElementById("nom").placeholder = texte.nom;
-        document.getElementById("adresse").placeholder = texte.adresse;
-        document.getElementById("prenom").placeholder = texte.prenom;
-        document.getElementById("code-postal").placeholder = texte.codePostal;
-        document.getElementById("mail").placeholder = texte.email;
-        document.getElementById("ville").placeholder = texte.ville;
-        document.getElementById("mdp").placeholder = texte.mdp;
-        document.getElementById("pays").placeholder = texte.pays;
-        document.getElementById("btn-modifier").textContent = texte.bouton;
+        if (texte.titre) {
+            document.getElementById("page-title").textContent = texte.titre;
+            document.getElementById("titre-page").textContent = texte.titre;
+        }
+        if (texte.labelInfos) document.getElementById("label-infos").textContent = texte.labelInfos;
+        if (texte.labelAdresse) document.getElementById("label-adresse").textContent = texte.labelAdresse;
 
-        document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-contact").textContent = commun.contact;
-        document.getElementById("a-propos-link").textContent = commun.info;
+        if (texte.nom) document.getElementById("nom").placeholder = texte.nom;
+        if (texte.prenom) document.getElementById("prenom").placeholder = texte.prenom;
+        if (texte.email) document.getElementById("mail").placeholder = texte.email;
+        if (texte.codePostal) document.getElementById("code-postal").placeholder = texte.codePostal;
+        if (texte.ville) document.getElementById("ville").placeholder = texte.ville;
+        if (texte.telephone) document.getElementById("telephone").placeholder = texte.telephone;
+        if (texte.rue) document.getElementById("rue").placeholder = texte.rue;
+        if (texte.pays) document.getElementById("pays").placeholder = texte.pays;
+        if (texte.bouton) document.getElementById("btn-modifier").textContent = texte.bouton;
+        if (texte.deconnexion) document.getElementById("btn-deconnexion").textContent = texte.deconnexion;
 
-        document.getElementById("current-lang").src = langue === "en" ? "image/drapeau-anglais.png" : "image/drapeau-francais.png";
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
+        if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
+
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === "en"
-            ? `<img src="image/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="image/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        const menuContent = document.getElementById("menu-links");
-        menuContent.innerHTML = commun.menu.map((item, index) => {
-            return `<a href="${liens[index]}.html">${item}</a>`;
-        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        if (commun.menu) {
+            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            const menuContent = document.getElementById("menu-links");
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}.html">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
+
+        // Charger les informations enregistrées
+        chargerUser();
     });
-</script>
 
+    function chargerUser() {
+        const user = JSON.parse(localStorage.getItem("user") || "null") || JSON.parse(localStorage.getItem("userData") || "null");
+        if (user) {
+            if (user.lastName || user.nom) document.getElementById("nom").value = user.lastName || user.nom;
+            if (user.firstName || user.prenom) document.getElementById("prenom").value = user.firstName || user.prenom;
+            if (user.email) document.getElementById("mail").value = user.email;
+            if (user.phone) document.getElementById("telephone").value = user.phone;
+            if (user.street) document.getElementById("rue").value = user.street;
+            if (user.postalCode) document.getElementById("code-postal").value = user.postalCode;
+            if (user.city) document.getElementById("ville").value = user.city;
+            if (user.country) document.getElementById("pays").value = user.pays || user.country;
+        }
+    }
+
+    function enregistrerModifications(event) {
+        event.preventDefault();
+
+        const user = {
+            lastName: document.getElementById("nom").value.trim(),
+            firstName: document.getElementById("prenom").value.trim(),
+            email: document.getElementById("mail").value.trim(),
+            phone: document.getElementById("telephone").value.trim(),
+            street: document.getElementById("rue").value.trim(),
+            postalCode: document.getElementById("code-postal").value.trim(),
+            city: document.getElementById("ville").value.trim(),
+            country: document.getElementById("pays").value.trim()
+        };
+
+        localStorage.setItem("user", JSON.stringify(user));
+
+        const msgStatut = document.getElementById("message-statut");
+        const langue = getLangue();
+        msgStatut.textContent = langue === "en" ? "Information updated successfully." : "Informations mises à jour avec succès.";
+        msgStatut.style.color = "green";
+        msgStatut.style.display = "block";
+    }
+
+    function seDeconnecter() {
+        localStorage.removeItem("user");
+        localStorage.removeItem("userData");
+        window.location.href = "Connexion.html";
+    }
+</script>
 </body>
 </html>

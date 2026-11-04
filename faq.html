@@ -38,11 +38,13 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       const langue = getLangue();
-      const texte = langue === "en" ? FAQEN : FAQFR;
-      const commun = langue === "en" ? CommunEN : CommunFR;
+      const texte = langue === "en" ? (typeof FAQEN !== "undefined" ? FAQEN : null) : (typeof FAQFR !== "undefined" ? FAQFR : null);
+      const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : null) : (typeof CommunFR !== "undefined" ? CommunFR : null);
 
-      document.title = texte.titre;
-      document.querySelector(".page-title").textContent = texte.titre;
+      if (texte) {
+        document.title = texte.titre;
+        document.querySelector(".page-title").textContent = texte.titre;
+      }
 
       const currentLang = document.getElementById("current-lang");
       currentLang.src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
@@ -52,39 +54,70 @@
               ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
               : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
-      const menuContent = document.getElementById("menu-links");
-      const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-      menuContent.innerHTML = commun.menu.map((item, index) => {
-        return `<a class="lien-langue" data-page="${liens[index]}">${item}</a>`;
-      }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+      if (commun) {
+        const menuContent = document.getElementById("menu-links");
+        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+        menuContent.innerHTML = commun.menu.map((item, index) => {
+          return `<a href="${liens[index]}.html">${item}</a>`;
+        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
 
-      document.querySelectorAll(".lien-langue").forEach(lien => {
-        const page = lien.getAttribute("data-page");
-        lien.setAttribute("href", `${page}.html`);
-      });
+        document.getElementById("lien-mentions").textContent = commun.mentions;
+        document.getElementById("lien-contact").textContent = commun.contact;
 
-      const faqItems = document.querySelectorAll(".faq-item");
-      const faqText = texte.questions;
+        const lienApropos = document.getElementById("lien-apropos");
+        if (lienApropos) {
+          lienApropos.textContent = commun.info;
+        }
+      }
 
-      faqItems.forEach((item, index) => {
-        const question = item.querySelector(".faq-question");
-        const answer = item.querySelector(".faq-answer p");
+      // Gestion de l'état connecté
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      const lienCompte = document.getElementById("lien-compte");
+      if (lienCompte) {
+        if (user && user.firstName) {
+          lienCompte.textContent = user.firstName;
+          lienCompte.setAttribute("href", "MonCompte.html");
+        } else if (commun) {
+          lienCompte.textContent = commun.compte;
+          lienCompte.setAttribute("href", "Connexion.html");
+        }
+      }
 
-        question.textContent = faqText[index].question;
-        answer.textContent = faqText[index].reponse;
-      });
+      // Questions / Réponses FAQ
+      const defaultQuestions = [
+        {
+          question: langue === "en" ? "How do I book a boat?" : "Comment réserver un bateau ?",
+          reponse: langue === "en" ? "Select a boat from our offers and click 'Book'." : "Sélectionnez un bateau dans nos offres et cliquez sur 'Réserver'."
+        },
+        {
+          question: langue === "en" ? "Do I need a boating license?" : "Un permis bateau est-il obligatoire ?",
+          reponse: langue === "en" ? "It depends on the boat. Details are available on each offer page." : "Cela dépend du type de bateau. Les détails sont précisés sur la page de chaque offre."
+        },
+        {
+          question: langue === "en" ? "What is the cancellation policy?" : "Quelles sont les conditions d'annulation ?",
+          reponse: langue === "en" ? "You can cancel free of charge up to 48 hours before departure." : "Vous pouvez annuler gratuitement jusqu'à 48 heures avant le départ."
+        }
+      ];
 
-      const questions = document.querySelectorAll('.faq-question');
-      questions.forEach(q => {
+      const questionsList = (texte && texte.questions) ? texte.questions : defaultQuestions;
+      const container = document.getElementById("faq-container");
+
+      container.innerHTML = questionsList.map(item => `
+        <div class="faq-item">
+          <button class="faq-question">${item.question}</button>
+          <div class="faq-answer"><p>${item.reponse}</p></div>
+        </div>
+      `).join('');
+
+      // Gestion de l'accordéon (clic pour ouvrir/fermer)
+      document.querySelectorAll('.faq-question').forEach(q => {
         q.addEventListener('click', () => {
           const answer = q.nextElementSibling;
-
           document.querySelectorAll('.faq-answer').forEach(a => {
             if (a !== answer) {
               a.style.maxHeight = null;
             }
           });
-
           if (answer.style.maxHeight) {
             answer.style.maxHeight = null;
           } else {
@@ -92,23 +125,6 @@
           }
         });
       });
-
-      document.getElementById("lien-mentions").textContent = commun.mentions;
-      document.getElementById("lien-mentions").setAttribute("data-page", "MentionsLegales");
-      document.getElementById("lien-contact").textContent = commun.contact;
-      document.getElementById("lien-contact").setAttribute("data-page", "Contact");
-
-      const lienCompte = document.getElementById("lien-compte");
-      if (lienCompte) {
-        lienCompte.textContent = commun.compte;
-        lienCompte.setAttribute("data-page", "Connexion");
-      }
-
-      const lienApropos = document.getElementById("lien-apropos");
-      if (lienApropos) {
-        lienApropos.textContent = commun.info;
-        lienApropos.setAttribute("href", "a-propos.html");
-      }
     });
   </script>
 </head>
@@ -126,8 +142,8 @@
     <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
-  <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #577550; text-decoration: none;">À propos</a>
-  <a id="lien-compte" class="lien-langue" data-page="Connexion" style="color: #577550; text-decoration: none;">Mon Compte</a>
+  <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
+  <a id="lien-compte" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
   <a href="favoris.html">
     <img src="images/panier.png" alt="Panier">
   </a>
@@ -143,25 +159,14 @@
   </div>
 </div>
 
-<div class="faq-container">
-  <div class="faq-item" style="margin-top: 200px;">
-    <button class="faq-question"></button>
-    <div class="faq-answer"><p></p></div>
-  </div>
-  <div class="faq-item">
-    <button class="faq-question"></button>
-    <div class="faq-answer"><p></p></div>
-  </div>
-  <div class="faq-item">
-    <button class="faq-question"></button>
-    <div class="faq-answer"><p></p></div>
-  </div>
+<div class="faq-container" id="faq-container" style="margin-top: 150px;">
+  <!-- Questions injectées dynamiquement -->
 </div>
 
 <div class="bouton-bas">
-  <a id="lien-mentions" class="bottom-text lien-langue" data-page="MentionsLegales" style="color : #577550;">Mentions légales</a>
+  <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550;">Mentions légales</a>
   <span class="bottom-text" style="color: #577550;">•</span>
-  <a id="lien-contact" class="bottom-text lien-langue" data-page="Contact" style="color: #577550;">Contact</a>
+  <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;">Contact</a>
 </div>
 </body>
 </html>

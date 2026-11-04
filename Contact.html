@@ -45,19 +45,30 @@
             document.getElementById("page-title").textContent = texte.titre;
             document.getElementById("titre-page").textContent = texte.titre;
             document.getElementById("contact-texte").textContent = texte.texte;
-            document.getElementById("nom").placeholder = texte.nom;
-            document.getElementById("mail").placeholder = texte.email;
-            document.getElementById("tel").placeholder = texte.telephone;
+
+            const nomInput = document.getElementById("nom");
+            const mailInput = document.getElementById("mail");
+            const telInput = document.getElementById("tel");
+            if (nomInput) nomInput.placeholder = texte.nom;
+            if (mailInput) mailInput.placeholder = texte.email;
+            if (telInput) telInput.placeholder = texte.telephone;
+
             document.getElementById("label-msg").textContent = texte.label;
             document.getElementById("msg").placeholder = texte.msg;
             document.getElementById("btn-envoyer").textContent = texte.bouton;
 
-            document.getElementById("lien-compte").textContent = commun.compte;
-            document.getElementById("lien-compte").setAttribute("data-page", "Connexion");
             document.getElementById("lien-mentions").textContent = commun.mentions;
-            document.getElementById("lien-mentions").setAttribute("data-page", "MentionsLegales");
             document.getElementById("lien-contact").textContent = commun.contact;
-            document.getElementById("lien-contact").setAttribute("data-page", "Contact");
+
+            const user = JSON.parse(localStorage.getItem("user") || "null");
+            const lienCompte = document.getElementById("lien-compte");
+            if (user && user.firstName) {
+                lienCompte.textContent = user.firstName;
+                lienCompte.setAttribute("href", "MonCompte.html");
+            } else {
+                lienCompte.textContent = commun.compte;
+                lienCompte.setAttribute("href", "Connexion.html");
+            }
 
             document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
             const langDropdown = document.getElementById("lang-dropdown");
@@ -68,13 +79,8 @@
             const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
             const menuContent = document.getElementById("menu-links");
             menuContent.innerHTML = commun.menu.map((item, index) => {
-                return `<a class="lien-langue" data-page="${liens[index]}">${item}</a>`;
+                return `<a href="${liens[index]}.html">${item}</a>`;
             }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
-
-            document.querySelectorAll(".lien-langue").forEach(lien => {
-                const page = lien.getAttribute("data-page");
-                lien.setAttribute("href", `${page}.html`);
-            });
 
             const lienApropos = document.getElementById("lien-apropos");
             if (lienApropos) {
@@ -82,9 +88,22 @@
                 lienApropos.setAttribute("href", "a-propos.html");
             }
         });
+
+        function envoyerMessage(event) {
+            event.preventDefault();
+            const messageStatut = document.getElementById("message-statut");
+            const langue = getLangue();
+
+            messageStatut.textContent = langue === "en" ? "Your message has been sent successfully." : "Votre message a bien été envoyé.";
+            messageStatut.style.color = "green";
+            messageStatut.style.display = "block";
+
+            // Réinitialiser le formulaire
+            document.getElementById("form-contact").reset();
+        }
     </script>
 </head>
-<body>
+<body style="background-color: #c5d8d3;">
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu-vert.png" alt="Menu">
 </div>
@@ -98,8 +117,8 @@
         <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #577550; text-decoration: none;">À propos</a>
-    <a id="lien-compte" class="lien-langue" data-page="Connexion" style="color: #577550; text-decoration: none;">Mon Compte</a>
+    <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
+    <a id="lien-compte" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
         <img src="images/panier.png" alt="Panier">
     </a>
@@ -112,15 +131,18 @@
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
         <h1 class="page-title" id="titre-page">Nous contacter</h1>
+
+        <p id="message-statut" style="text-align: center; font-weight: bold; display: none; margin-bottom: 10px;"></p>
+
         <p class="texte" id="contact-texte" style="text-shadow: none;">
             Pour toute question, veuillez nous contacter par mail à captivant@gmail.com ou via le formulaire de contact ci-dessous.
         </p>
     </div>
 
-    <div class="formulaire-connexion">
+    <form id="form-contact" onsubmit="envoyerMessage(event)" class="formulaire-connexion">
         <div class="champ-double">
-            <input type="text" id="nom" placeholder="Nom">
-            <input type="text" id="mail" placeholder="E-mail">
+            <input type="text" id="nom" placeholder="Nom" required>
+            <input type="email" id="mail" placeholder="E-mail" required>
         </div>
         <div class="champ">
             <input type="text" id="tel" placeholder="Entrez votre téléphone">
@@ -128,16 +150,16 @@
             <label for="msg" id="label-msg">Message</label>
         </div>
         <div class="champ-msg">
-            <textarea id="msg" placeholder="Entrez votre message"></textarea>
+            <textarea id="msg" placeholder="Entrez votre message" required></textarea>
         </div>
-        <div class="connexion" id="btn-envoyer">Envoyer</div>
-    </div>
+        <button type="submit" id="btn-envoyer" class="connexion" style="border: none; cursor: pointer;">Envoyer</button>
+    </form>
 </div>
 
 <div class="bouton-bas">
-    <a id="lien-mentions" class="bottom-text lien-langue" data-page="MentionsLegales" style="color: #577550">Mentions légales</a>
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
     <span class="bottom-text" style="color: #577550">•</span>
-    <a id="lien-contact" class="bottom-text lien-langue" data-page="Contact" style="color: #577550">Contact</a>
+    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550">Contact</a>
 </div>
 </body>
 </html>
