@@ -16,7 +16,7 @@
 </head>
 <body>
 <div class="top-left" onclick="toggleMenu()">
-    <img src="/images/menu.png" alt="Menu">
+    <img src="images/menu.png" alt="Menu">
 </div>
 <div class="top-left retour-offre">
     <a href="offre.html" id="retour-offre" style="color: rgba(224,224,213,0.65)"></a>
@@ -25,7 +25,7 @@
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="/images/logo.png" alt="Logo">
+            <img src="images/logo.png" alt="Logo">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
         <h1 class="page-title" id="titre-bateau" style="color: #e0e0d5;"></h1>
@@ -44,13 +44,13 @@
 </div>
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="/images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a href="a-propos.html" id="menu-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <a href="Connexion.html" id="menu-moncompte" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
-        <img src="/images/panier.png" alt="Panier">
+        <img src="images/panier.png" alt="Panier">
     </a>
 </div>
 <div class="double-carrousel" id="contenu"></div>
@@ -80,10 +80,10 @@
         const listeBateaux = langue === 'en' ? bateauxEN : bateaux;
         const texte = langue === 'en' ? InfoBateauEN : InfoBateauFR;
 
-        document.getElementById("current-lang").src = langue === 'en' ? "/images/drapeau-anglais.png" : "/images/drapeau-francais.png";
+        document.getElementById("current-lang").src = langue === 'en' ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === 'en'
-            ? `<img src="/images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="/images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
         document.getElementById("menu-location").textContent = commun.menu[0];
         document.getElementById("menu-ports").textContent = commun.menu[1];

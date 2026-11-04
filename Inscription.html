@@ -11,7 +11,7 @@
 </head>
 <body>
 <div class="top-left" onclick="toggleMenu()">
-    <img src="/images/menu-vert.png" alt="Menu">
+    <img src="images/menu-vert.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -20,20 +20,20 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="/images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a id="a-propos-link" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
     <a id="mon-compte-link" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
-        <img src="/images/panier.png" alt="Panier">
+        <img src="images/panier.png" alt="Panier">
     </a>
 </div>
 
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="/images/logo-transparent.png" alt="Logo" style="width: 30px;">
+            <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
         <h1 class="page-title" id="titre-page"></h1>
@@ -44,9 +44,9 @@
             <br>
             <input type="text" id="nom" placeholder="Nom">
             <input type="text" id="prenom" placeholder="Prénom">
-            <img src="/images/email.png" alt="email">
+            <img src="images/email.png" alt="email">
             <input type="email" id="email" placeholder="Entrez votre adresse mail">
-            <img src="/images/mdp.png" alt="mot de passe">
+            <img src="images/mdp.png" alt="mot de passe">
             <input type="password" id="mdp" placeholder="Entrez votre mot de passe">
             <input type="password" id="mdp-confirm" placeholder="Confirmez votre mot de passe">
         </div>
@@ -118,11 +118,11 @@
         document.getElementById("a-propos-link").textContent = commun.info;
         document.getElementById("mon-compte-link").textContent = commun.compte;
 
-        document.getElementById("current-lang").src = langue === "en" ? "/images/drapeau-anglais.png" : "/images/drapeau-francais.png";
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         const langDropdown = document.getElementById("lang-dropdown");
         langDropdown.innerHTML = langue === "en"
-            ? `<img src="/images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="/images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
         const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
         const menuContent = document.getElementById("menu-links");

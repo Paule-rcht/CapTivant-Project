@@ -13,7 +13,7 @@
 </head>
 <body style="background-color: #c5d8d3;">
 <div class="top-left" onclick="toggleMenu()">
-  <img src="/images/menu-vert.png" alt="Menu">
+  <img src="images/menu-vert.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -31,7 +31,7 @@
 <div class="top-center">
   <div class="logo-block">
     <a href="PageAccueil.html">
-      <img src="/images/logo-transparent.png" alt="Logo" style="width: 30px;">
+      <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
     </a>
     <p class="logo-slogan">Cap'Tivant</p>
     <h1 class="page-title" id="titre-page">Nos Ports</h1>
@@ -40,13 +40,13 @@
 
 <div class="top-right">
   <div class="language-selector">
-    <img id="current-lang" src="/images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
   <a href="a-propos.html" id="lien-apropos" style="color: #577550; text-decoration: none;"></a>
   <a href="Connexion.html" id="lien-compte" style="color: #577550; text-decoration: none;"></a>
   <a href="favoris.html">
-    <img src="/images/panier.png" alt="Panier">
+    <img src="images/panier.png" alt="Panier">
   </a>
 </div>
 
@@ -81,7 +81,7 @@
   window.onload = function () {
     const langue = localStorage.getItem("langue") || "fr";
 
-    document.getElementById("current-lang").src = langue === "en" ? "/images/drapeau-anglais.png" : "/images/drapeau-francais.png";
+    document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
     const texte = langue === "en" ? PortsEN : PortsFR;
     const texteCommun = langue === "en" ? CommunEN : CommunFR;
 
@@ -103,8 +103,8 @@
 
     const dropdown = document.getElementById("lang-dropdown");
     dropdown.innerHTML = langue === "en"
-            ? `<img src="/images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="/images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
   };
 
   document.addEventListener("click", function(event) {

@@ -14,7 +14,7 @@
 </head>
 <body style="background-color: #c5d8d3;">
 <div class="top-left" onclick="toggleMenu()">
-    <img src="/images/menu-vert.png" alt="Menu">
+    <img src="images/menu-vert.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -32,7 +32,7 @@
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="/images/logo-transparent.png" alt="Logo" style="width: 30px;">
+            <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
         <h1 class="page-title">Our harbour</h1>
@@ -43,16 +43,16 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="/images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown">
-            <img id="fr-option" src="/images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">
-            <img id="en-option" src="/images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">
+            <img id="fr-option" src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">
+            <img id="en-option" src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">
         </div>
     </div>
     <a href="a-propos-en.html" style="color: #577550; text-decoration: none;">About</a>
     <a href="Connexion-en.html" style="color: #577550; text-decoration: none;">My account</a>
     <a href="favoris-en.html">
-        <img src="/images/panier.png" alt="Panier">
+        <img src="images/panier.png" alt="Panier">
     </a>
 </div>
 
@@ -100,11 +100,11 @@
 
         // Affiche uniquement le drapeau opposé dans le dropdown
         if (window.location.href.includes("-en")) {
-            currentLang.src = "/images/drapeau-anglais.png";
-            langDropdown.innerHTML = `<img src="/images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`;
+            currentLang.src = "images/drapeau-anglais.png";
+            langDropdown.innerHTML = `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`;
         } else {
-            currentLang.src = "/images/drapeau-francais.png";
-            langDropdown.innerHTML = `<img src="/images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            currentLang.src = "images/drapeau-francais.png";
+            langDropdown.innerHTML = `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
         }
     };
 

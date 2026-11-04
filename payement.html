@@ -11,7 +11,7 @@
 </head>
 <body>
 <div class="top-left" onclick="toggleMenu()">
-    <img src="/images/menu.png" alt="Menu">
+    <img src="images/menu.png" alt="Menu">
 </div>
 
 <!-- Fil d’Ariane -->
@@ -25,7 +25,7 @@
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="/images/logo.png" alt="Logo">
+            <img src="images/logo.png" alt="Logo">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
         <h1 class="page-title" id="titre-bateau" style="color: #E0E0D5">Paiement</h1>
@@ -46,16 +46,16 @@
 <!-- Lien langue / compte -->
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="/images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
         <div id="lang-dropdown" class="lang-dropdown">
-            <img id="fr-option" src="/images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">
-            <img id="en-option" src="/images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">
+            <img id="fr-option" src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">
+            <img id="en-option" src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">
         </div>
     </div>
     <a href="a-propos.html" style="color: #E0E0D5; text-decoration: none;">À propos</a>
     <a href="Connexion.html" style="color: #E0E0D5; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
-        <img src="/images/panier.png" alt="panier">
+        <img src="images/panier.png" alt="panier">
     </a>
 </div>
 <div class="background">
@@ -248,7 +248,7 @@
         const currentLang = localStorage.getItem("langue") || "fr";
         const newLang = currentLang === "fr" ? "en" : "fr";
         const newFlag = document.createElement("img");
-        newFlag.src = newLang === "fr" ? "/images/drapeau-francais.png" : "/images/drapeau-anglais.png";
+        newFlag.src = newLang === "fr" ? "images/drapeau-francais.png" : "images/drapeau-anglais.png";
         newFlag.alt = newLang === "fr" ? "Français" : "Anglais";
         newFlag.classList.add("drapeau-option");
         newFlag.onclick = () => changerLangue(newLang);
@@ -265,7 +265,7 @@
     window.onload = function () {
         const currentLang = document.getElementById("current-lang");
         const langue = localStorage.getItem("langue") || "fr";
-        currentLang.src = langue === "en" ? "/images/drapeau-anglais.png" : "/images/drapeau-francais.png";
+        currentLang.src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
     };
 
     document.addEventListener("click", function(event) {

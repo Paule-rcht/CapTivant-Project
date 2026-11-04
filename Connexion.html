@@ -54,12 +54,12 @@
       document.getElementById("lien-contact").textContent = commun.contact;
 
       const currentLang = document.getElementById("current-lang");
-      currentLang.src = langue === "en" ? "/images/drapeau-anglais.png" : "/images/drapeau-francais.png";
+      currentLang.src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
 
       const langDropdown = document.getElementById("lang-dropdown");
       langDropdown.innerHTML = langue === "en"
-              ? `<img src="/images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-              : `<img src="/images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+              ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
+              : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
 
       const menuContent = document.getElementById("menu-links");
       const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
@@ -81,7 +81,7 @@
 </head>
 <body>
 <div class="top-left" onclick="toggleMenu()">
-  <img src="/images/menu-vert.png" alt="Menu">
+  <img src="images/menu-vert.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -90,19 +90,19 @@
 
 <div class="top-right">
   <div class="language-selector">
-    <img id="current-lang" src="/images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
   <a id="lien-apropos" class="lien-langue" data-page="a-propos" style="color: #577550; text-decoration: none;">À propos</a>
   <a href="favoris.html">
-    <img src="/images/panier.png" alt="Panier">
+    <img src="images/panier.png" alt="Panier">
   </a>
 </div>
 
 <div class="top-center">
   <div class="logo-block">
     <a href="PageAccueil.html">
-      <img src="/images/logo-transparent.png" alt="Logo" style="width: 30px;">
+      <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
     </a>
     <p class="logo-slogan">Cap'Tivant</p>
     <h1 class="page-title" id="titre-page">Connexion</h1>
@@ -110,11 +110,11 @@
 
   <div class="formulaire-connexion">
     <div class="champ">
-      <img src="/images/email.png" alt="email">
+      <img src="images/email.png" alt="email">
       <input type="email" id="email" placeholder="Entrez votre adresse mail">
     </div>
     <div class="champ">
-      <img src="/images/mdp.png" alt="mot de passe">
+      <img src="images/mdp.png" alt="mot de passe">
       <input type="password" id="password" placeholder="Entrez votre mot de passe">
     </div>
   </div>
