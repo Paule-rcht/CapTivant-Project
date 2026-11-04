@@ -2,56 +2,57 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="page-title">Avis</title>
   <link rel="stylesheet" href="PageAccueil.css">
-  <link rel="stylesheet" href="Avis.css">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="avis.css">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
   <script src="info-bateau.js" defer></script>
 </head>
-<body style="background-color: #c5d8d3;">
+<body style="background-color: #c5d8d3; display: flex; flex-direction: column; min-height: 100vh;">
+
 <div class="top-left" onclick="toggleMenu()">
-  <img src="images/menu-vert.png" alt="Menu">
+  <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
   <div class="menu-content" id="menu-links"></div>
 </div>
 
-<div class="top-right">
-  <div class="language-selector">
-    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
-    <div id="lang-dropdown" class="lang-dropdown"></div>
-  </div>
-  <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
-  <a id="lien-compte" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon compte</a>
-  <a href="favoris.html">
-    <img src="images/panier.png" alt="Panier">
-  </a>
-</div>
-
 <div class="top-center">
   <div class="logo-block">
     <a href="PageAccueil.html">
-      <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
+      <img src="images/logo-transparent.png" alt="Logo">
     </a>
     <p class="logo-slogan">Cap'Tivant</p>
-    <h1 class="page-title">Avis</h1>
+    <h1 class="page-title" id="titre-page" style="color: #e0e0d5">Avis</h1>
   </div>
 </div>
 
-<div class="background" id="avis-container" style="max-width: 800px; margin: 20px auto; padding: 20px;">
+<div class="top-right">
+  <div class="language-selector">
+    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
+    <div id="lang-dropdown" class="lang-dropdown"></div>
+  </div>
+  <a href="a-propos.html" id="lien-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
+  <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
+  <a href="favoris.html"><img src="images/panier.png" alt="Panier"></a>
 </div>
 
-<div class="bouton-bas">
-  <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550;">Mentions légales</a>
-  <span class="bottom-text" style="color: #577550;">•</span>
-  <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;">Contact</a>
+<main style="flex: 1; margin-top: 150px; padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; width: 100%;">
+  <div id="avis-container" style="width: 100%; max-width: 600px; padding: 0 20px;"></div>
+</main>
+
+<div class="bouton-bas" style="background: transparent; padding: 20px 0;">
+  <a href="MentionsLegales.html" id="lien-mentions" class="bottom-text">Mentions légales</a>
+  <span class="bottom-text">•</span>
+  <a href="Contact.html" id="lien-contact" class="bottom-text">Contact</a>
 </div>
 
 <script>
-  function getLangue() {
-    return localStorage.getItem("langue") || "fr";
+  function toggleMenu() {
+    document.getElementById("menu-overlay").classList.toggle("active");
   }
 
   function toggleLangDropdown() {
@@ -64,84 +65,67 @@
     location.reload();
   }
 
-  function toggleMenu() {
-    const menu = document.getElementById("menu-overlay");
-    menu.classList.toggle("active");
+  function getLangue() {
+    return localStorage.getItem("langue") || "fr";
   }
-
-  document.addEventListener("click", function(event) {
-    const dropdown = document.getElementById("lang-dropdown");
-    const icon = document.getElementById("current-lang");
-    if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
-      dropdown.style.display = "none";
-    }
-  });
 
   document.addEventListener("DOMContentLoaded", function () {
     const langue = getLangue();
-    const texte = langue === "en" ? AvisEN : AvisFR;
-    const commun = langue === "en" ? CommunEN : CommunFR;
+    const texteCommun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-    document.title = texte.titre;
-    document.querySelector(".page-title").textContent = texte.titre;
+    document.title = langue === "en" ? "Reviews" : "Avis";
+    document.getElementById("titre-page").textContent = langue === "en" ? "Reviews" : "Avis";
 
-    const currentLang = document.getElementById("current-lang");
-    currentLang.src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+    if (texteCommun.info) document.getElementById("lien-apropos").textContent = texteCommun.info;
+    if (texteCommun.mentions) document.getElementById("lien-mentions").textContent = texteCommun.mentions;
+    if (texteCommun.contact) document.getElementById("lien-contact").textContent = texteCommun.contact;
 
-    const langDropdown = document.getElementById("lang-dropdown");
-    langDropdown.innerHTML = langue === "en"
-            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
-
-    document.getElementById("lien-apropos").textContent = commun.info;
-    document.getElementById("lien-mentions").textContent = commun.mentions;
-    document.getElementById("lien-contact").textContent = commun.contact;
-
-    // Gestion du lien Compte selon l'état de connexion
     const user = JSON.parse(localStorage.getItem("user") || "null");
     const lienCompte = document.getElementById("lien-compte");
-    if (user && user.firstName) {
-      lienCompte.textContent = user.firstName;
-      lienCompte.setAttribute("href", "MonCompte.html");
-    } else {
-      lienCompte.textContent = commun.compte;
-      lienCompte.setAttribute("href", "Connexion.html");
+    if (lienCompte) {
+      if (user && user.firstName) {
+        lienCompte.textContent = user.firstName;
+        lienCompte.setAttribute("href", "MonCompte.html");
+      } else if (texteCommun.compte) {
+        lienCompte.textContent = texteCommun.compte;
+        lienCompte.setAttribute("href", "Connexion.html");
+      }
     }
 
-    // Génération du menu de navigation
-    const menuContent = document.getElementById("menu-links");
-    const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-    menuContent.innerHTML = commun.menu.map((item, index) => {
-      return `<a href="${liens[index]}.html">${item}</a>`;
-    }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
-
-    // Récupération des avis
-    let avis = JSON.parse(localStorage.getItem("avis") || "[]");
-
-    // Exemple d'avis par défaut si aucun avis n'existe encore
-    if (avis.length === 0) {
-      avis = [
-        { id: 1, titre: "Oceanis 41", etoiles: 5, commentaire: "Superbe expérience, bateau très propre et bien entretenu !", date: "15/10/2026" },
-        { id: 2, titre: "Sun Odyssey 349", etoiles: 4, commentaire: "Très bonne journée en mer, équipage au top.", date: "28/09/2026" }
-      ];
-      localStorage.setItem("avis", JSON.stringify(avis));
+    if (texteCommun.menu) {
+      const menuContent = document.getElementById("menu-links");
+      const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+      menuContent.innerHTML = texteCommun.menu.map((item, index) => {
+        return `<a href="${liens[index]}.html">${item}</a>`;
+      }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
     }
 
-    const container = document.getElementById("avis-container");
+    document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+    document.getElementById("lang-dropdown").innerHTML = langue === "en"
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-    if (avis.length === 0) {
-      container.innerHTML = `<p style='text-align:center;'>${texte.aucunAvis || 'Aucun avis enregistré.'}</p>`;
-    } else {
-      container.innerHTML = avis.map(entry => `
-        <a class="avis-card" href="info-bateau.html?id=${entry.id || 1}" style="text-decoration: none; color: inherit; display: block; margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.8); border-radius: 8px;">
-          <h3 style="margin: 0 0 5px 0;">${entry.titre}</h3>
-          <p class="etoiles" style="margin: 5px 0;">${'⭐'.repeat(entry.etoiles || entry.rating || 5)}</p>
-          <p class="commentaire" style="font-style: italic; margin: 5px 0;">"${entry.commentaire || entry.comment}"</p>
-          <p class="date" style="font-size: 0.85em; color: #666; margin: 5px 0 0 0;">${entry.date || '01/11/2026'}</p>
-        </a>
-      `).join('');
-    }
+    chargerTousLesAvis(langue);
   });
+
+  function chargerTousLesAvis(langue) {
+    const container = document.getElementById("avis-container");
+    const avisList = JSON.parse(localStorage.getItem("avis") || "[]");
+
+    if (avisList.length === 0) {
+      container.innerHTML = `<p style="text-align: center; color: #333;">${langue === "en" ? "No reviews left yet." : "Aucun avis publié pour le moment."}</p>`;
+      return;
+    }
+
+    container.innerHTML = avisList.map(a => `
+            <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3 style="color: #577550; margin-top: 0;">${a.titre}</h3>
+                <p style="font-size: 1.2em; margin: 10px 0;">${'⭐'.repeat(a.etoiles)}</p>
+                <p style="font-style: italic; color: #333;">"${a.commentaire}"</p>
+                <p style="font-size: 0.85em; color: #888; margin-bottom: 0;">${a.date || ''}</p>
+            </div>
+        `).join('');
+  }
 </script>
 </body>
 </html>

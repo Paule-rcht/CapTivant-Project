@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Historique</title>
     <link rel="stylesheet" href="PageAccueil.css">
-    <link rel="stylesheet" href="historique.css">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <script src="info-bateau.js" defer></script>
@@ -13,7 +12,7 @@
 <body style="background-color: #c5d8d3; display: flex; flex-direction: column; min-height: 100vh;">
 
 <div class="top-left" onclick="toggleMenu()">
-    <img src="images/menu-vert.png" alt="Menu">
+    <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -26,7 +25,7 @@
             <img src="images/logo-transparent.png" alt="Logo">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
-        <h1 class="page-title" id="titre-page" style="color: #577550">Historique</h1>
+        <h1 class="page-title" id="titre-page" style="color: #e0e0d5">Historique</h1>
     </div>
 </div>
 
@@ -35,15 +34,14 @@
         <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a href="a-propos.html" id="lien-apropos" style="color: #577550; text-decoration: none;">À propos</a>
-    <a id="lien-compte" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
+    <a href="a-propos.html" id="lien-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
+    <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html"><img src="images/panier.png" alt="Panier"></a>
 </div>
 
-<!-- Conteneur principal flexible -->
-<main style="flex: 1; margin-top: 140px; padding-bottom: 40px; width: 100%; display: flex; flex-direction: column; align-items: center;">
+<main style="flex: 1; margin-top: 150px; padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; width: 100%;">
     <div id="historique-container" style="width: 100%; max-width: 600px; padding: 0 20px;"></div>
-    <button id="btn-vider" onclick="viderHistorique()" style="display: none; margin-top: 25px; padding: 10px 20px; background-color: #f29066; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;"></button>
+    <button id="btn-vider" onclick="viderHistorique()" style="display: none; margin-top: 20px; padding: 10px 20px; background-color: #f29066; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;"></button>
 </main>
 
 <div class="bouton-bas" style="background: transparent; padding: 20px 0;">
@@ -82,7 +80,6 @@
         if (texteCommun.mentions) document.getElementById("lien-mentions").textContent = texteCommun.mentions;
         if (texteCommun.contact) document.getElementById("lien-contact").textContent = texteCommun.contact;
 
-        // Utilisateur connecté
         const user = JSON.parse(localStorage.getItem("user") || "null");
         const lienCompte = document.getElementById("lien-compte");
         if (lienCompte) {
@@ -95,7 +92,6 @@
             }
         }
 
-        // Menu overlay avec bon nom de fichier (avis.html en minuscule)
         if (texteCommun.menu) {
             const menuContent = document.getElementById("menu-links");
             const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
@@ -104,7 +100,6 @@
             }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
         }
 
-        // Gestion drapeaux
         document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === "en"
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
@@ -122,31 +117,45 @@
         btnVider.textContent = langue === "en" ? "Clear History" : "Vider l'historique";
 
         if (historique.length === 0) {
-            container.innerHTML = `<p style="text-align: center; font-size: 1.1em; color: #333;">${langue === "en" ? "No reservations in history." : "Aucune réservation dans l'historique."}</p>`;
+            container.innerHTML = `<p style="text-align: center; color: #333;">${langue === "en" ? "No reservations found." : "Aucune réservation trouvée."}</p>`;
             btnVider.style.display = "none";
             return;
         }
 
         btnVider.style.display = "inline-block";
-        container.innerHTML = historique.map((b) => {
-            const avis = avisList.find(a => a.titre === b.titre) || null;
+
+        container.innerHTML = historique.map((b, index) => {
+            const avisExistant = avisList.find(a => a.titre === b.titre);
+
             return `
-                <div class="carte-bateau" style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                    <h2 style="color: #333; margin-top: 0;">${b.titre}</h2>
+                <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #333;">
+                    <h2 style="color: #577550; margin-top: 0;">${b.titre}</h2>
                     <p><strong>Port :</strong> ${b.port || 'N/A'}</p>
-                    <p><strong>${langue === "en" ? "Max people" : "Personnes max"} :</strong> ${b.personnes || 'N/A'}</p>
+                    <p><strong>${langue === "en" ? "People" : "Personnes"} :</strong> ${b.personnes || 'N/A'}</p>
                     <p><strong>${langue === "en" ? "Cabins" : "Cabines"} :</strong> ${b.cabines || 'N/A'}</p>
                     <p><strong>${langue === "en" ? "Length" : "Longueur"} :</strong> ${b.longueur || 'N/A'}</p>
                     <p><strong>${langue === "en" ? "Price" : "Prix"} :</strong> ${b.prix || 'N/A'}</p>
-                    ${b.image1 ? `<img src="${b.image1}" alt="${b.titre}" style="width: 100%; border-radius: 8px; margin: 10px 0;">` : ''}
+                    ${b.image1 ? `<img src="${b.image1}" alt="${b.titre}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin: 10px 0;">` : ''}
 
-                    <div style="background: #f9f9f9; padding: 12px; border-radius: 8px; margin-top: 10px;">
-                        ${avis ? `
-                            <p style="margin: 0;"><strong>Commentaire :</strong> ${avis.commentaire}</p>
-                            <p style="margin: 5px 0;"><strong>Note :</strong> ${'⭐'.repeat(avis.etoiles)}</p>
-                            <p style="margin: 0; font-size: 0.85em; color: #777;"><em>Posté le ${avis.date || 'N/A'}</em></p>
+                    <div style="background: #f4f7f6; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        ${avisExistant ? `
+                            <p style="margin: 0; color: #577550; font-weight: bold;">${langue === "en" ? "Your review:" : "Votre avis :"}</p>
+                            <p style="margin: 5px 0;"><strong>${langue === "en" ? "Comment:" : "Commentaire :"}</strong> ${avisExistant.commentaire}</p>
+                            <p style="margin: 5px 0;"><strong>${langue === "en" ? "Rating:" : "Note :"}</strong> ${'⭐'.repeat(avisExistant.etoiles)}</p>
+                            <p style="margin: 0; font-size: 0.85em; color: #777;"><em>${avisExistant.date || ''}</em></p>
                         ` : `
-                            <p style="margin: 0; color: #666;"><em>${langue === "en" ? "No review submitted yet." : "Aucun avis déposé."}</em></p>
+                            <p style="margin-top: 0; font-weight: bold; color: #577550;">${langue === "en" ? "Leave a review:" : "Laisser un avis :"}</p>
+                            <select id="note-${index}" style="width: 100%; padding: 8px; margin-bottom: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                                <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                                <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                                <option value="3">⭐⭐⭐ (3/5)</option>
+                                <option value="2">⭐⭐ (2/5)</option>
+                                <option value="1">⭐ (1/5)</option>
+                            </select>
+                            <textarea id="com-${index}" placeholder="${langue === "en" ? "Your comment..." : "Votre commentaire..."}" style="width: 100%; height: 60px; padding: 8px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box;"></textarea>
+                            <button onclick="ajouterAvis('${b.titre}', ${index})" style="margin-top: 8px; width: 100%; padding: 8px; background-color: #577550; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                                ${langue === "en" ? "Submit Review" : "Envoyer l'avis"}
+                            </button>
                         `}
                     </div>
                 </div>
@@ -154,9 +163,33 @@
         }).join('');
     }
 
+    function ajouterAvis(titre, index) {
+        const note = parseInt(document.getElementById(`note-${index}`).value);
+        const commentaire = document.getElementById(`com-${index}`).value.trim();
+
+        if (!commentaire) {
+            alert(getLangue() === "en" ? "Please enter a comment." : "Veuillez entrer un commentaire.");
+            return;
+        }
+
+        const dateAujourdhui = new Date().toLocaleDateString();
+        const nouvelAvis = {
+            titre: titre,
+            etoiles: note,
+            commentaire: commentaire,
+            date: dateAujourdhui
+        };
+
+        let avisList = JSON.parse(localStorage.getItem("avis") || "[]");
+        avisList.push(nouvelAvis);
+        localStorage.setItem("avis", JSON.stringify(avisList));
+
+        alert(getLangue() === "en" ? "Review submitted successfully!" : "Avis enregistré avec succès !");
+        location.reload();
+    }
+
     function viderHistorique() {
-        const langue = getLangue();
-        if (confirm(langue === "en" ? "Are you sure you want to clear your history?" : "Voulez-vous vraiment vider votre historique ?")) {
+        if (confirm(getLangue() === "en" ? "Clear all history?" : "Voulez-vous vraiment vider votre historique ?")) {
             localStorage.removeItem("historique");
             location.reload();
         }
