@@ -11,7 +11,7 @@ const ports = [
     { name: "Lorient", coords: [47.7489, -3.3666], image: "images/lorient.jpg" },
     { name: "Concarneau", coords: [47.875, -3.9183], image: "images/concarneau.jpeg" },
     { name: "Bordeaux", coords: [44.8378, -0.5792], image: "images/bordeaux.jpg" },
-    { name: "Vannes", coords: [47.6559, -2.7603], image: "images/vannes.jpg" },
+    { name: "Vannes", coords: [47.6559, -2.7603], image: "images/vannes.jpeg" },
     { name: "Brest", coords: [48.3904, -4.4861], image: "images/brest" },
     { name: "Marseille", coords: [43.2965, 5.3698], image: "images/marseille.png" }
 ];
@@ -42,7 +42,7 @@ ports.forEach(port => {
             <strong>${port.name}</strong><br>
             <img src="${port.image}" alt="${port.name}" style="width: 100%; border-radius: 8px; margin: 5px 0;">
             <p>${boatCount} bateau${boatCount > 1 ? 'x' : ''} disponible${boatCount > 1 ? 's' : ''}</p>
-            <a href="offre.php?port=${encodeURIComponent(port.name)}" 
+            <a href="offre.html?port=${encodeURIComponent(port.name)}" 
                style="display: inline-block; margin-top: 8px; padding: 8px 16px; background-color: #f29066; 
                color: white; border-radius: 8px; text-decoration: none; font-family: 'DM Serif Display', serif;">
                Voir les offres
@@ -68,7 +68,7 @@ ports.forEach(port => {
     `);
 
     marker.on('click', () => {
-        window.location.href = `offre.php?port=${encodeURIComponent(port.name)}`;
+        window.location.href = `offre.html?port=${encodeURIComponent(port.name)}`;
     });
 });
 
