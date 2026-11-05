@@ -15,7 +15,7 @@ https://paule-rcht.github.io/CapTivant-Project/PageAccueil.html
   - Basculement instantané de la langue sur l'ensemble des pages via un sélecteur de drapeau, avec persistance dans le `localStorage`.
 - **♿ Accessibilité & Mode Malvoyant :**
   - Mode d'accessibilité visuelle adapté avec contrastes renforcés et typographie agrandie.
-  - Guide vocal interactif bilingue (FR/EN) déclenchant la lecture audio des éléments (`.mp3`) au survol de la souris pour accompagner les personnes malvoyantes.
+  - Guide vocal interactif bilingue (FR/EN) déclenchant la lecture audio des éléments (`.mp3`) au survol de la souris pour accompagner les personnes malvoyantes sur la page d'accueil.
 - **👤 Authentification Client-Side (`localStorage`) :**
   - Inscription dynamique avec validation de formulaire, masquage du mot de passe (émojis interactifs) et sécurité Captcha mathématique.
   - Connexion/Déconnexion locale et gestion dynamique des liens de menu ("Mon Compte" / "Connexion").
@@ -75,7 +75,7 @@ https://paule-rcht.github.io/CapTivant-Project/PageAccueil.html
   - Instant language switching across all pages via a flag selector, with preference saved in `localStorage`.
 - **♿ Accessibility & Visually Impaired Mode:**
   - Customized visual accessibility mode with high contrast and enlarged typography.
-  - Interactive bilingual (FR/EN) voice guide triggering audio playback (`.mp3`) when hovering over page elements to assist visually impaired users.
+  - Interactive bilingual (FR/EN) voice guide triggering audio playback (`.mp3`) when hovering over page elements to assist visually impaired users on the home page.
 - **👤 Client-Side Authentication (`localStorage`):**
   - Dynamic user registration with form validation, password visibility toggle (interactive emojis), and Math Captcha security.
   - Local Login/Logout with dynamic navigation menu updates ("My Account" / "Login").
