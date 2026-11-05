@@ -8,7 +8,53 @@
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        /* Pied de page fixe tout en bas */
+        /* Bouton unique du guide vocal */
+        #audio-guide-control {
+            position: fixed;
+            right: 20px;
+            bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 2px solid #577550;
+        }
+
+        #audio-guide-control:hover {
+            background: #ffffff;
+            transform: scale(1.1);
+        }
+
+        #audio-guide-control::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 65px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            font-family: Arial, sans-serif;
+        }
+
+        #audio-guide-control:hover::after {
+            opacity: 1;
+        }
+
         .bouton-bas {
             position: fixed;
             bottom: 0;
@@ -40,8 +86,8 @@
         <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a id="a-propos-link" href="a-propos.html" class="top-infos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
-    <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
+    <a id="a-propos-link" href="a-propos.html" class="top-infos" style="color: #e0e0d5; text-decoration: none;" data-sound="a-propos.mp3">À propos</a>
+    <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;" data-sound="a login.mp3">Mon Compte</a>
     <a href="favoris.html">
         <img src="images/panier.png" alt="Panier">
     </a>
@@ -57,7 +103,7 @@
 <section class="section-accueil">
     <div class="texte-wrapper">
         <div class="texte principal" id="texte-principal">Cap'Tivant</div>
-        <a href="location.html" class="texte secondaire" style="text-decoration: none" id="texte-secondaire">Location de bateau</a>
+        <a href="location.html" class="texte secondaire" style="text-decoration: none" id="texte-secondaire" data-sound="comment res...un bateau.mp3">Location de bateau</a>
     </div>
 </section>
 
@@ -82,16 +128,34 @@
     </div>
 </section>
 
+<!-- Bouton Unique pour le Guide Vocal -->
+<div id="audio-guide-control" data-tooltip="Activer le guide vocal">
+    <span style="font-size: 22px;" id="icon-audio">📣</span>
+</div>
+
 <!-- Pied de page -->
 <div class="bouton-bas">
     <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550;">Mentions légales</a>
     <span class="bottom-text" style="color: #577550;">•</span>
-    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;">Contact</a>
+    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;" data-sound="contact.mp3">Contact</a>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="info-bateau.js"></script>
 <script>
+    let guideVocalActif = false;
+    let audioActuel = null;
+
+    function jouerserSon(nomFichier) {
+        if (!guideVocalActif || !nomFichier) return;
+        if (audioActuel) {
+            audioActuel.pause();
+            audioActuel.currentTime = 0;
+        }
+        audioActuel = new Audio('son/' + nomFichier);
+        audioActuel.play().catch(err => console.log("Erreur de lecture audio :", err));
+    }
+
     function toggleMenu() {
         const overlay = document.getElementById("menu-overlay");
         overlay.classList.toggle("active");
@@ -179,6 +243,33 @@
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
         }
+
+        // Activation / Désactivation du Guide Vocal
+        const btnGuide = document.getElementById('audio-guide-control');
+        const iconAudio = document.getElementById('icon-audio');
+
+        btnGuide.addEventListener('click', function() {
+            guideVocalActif = !guideVocalActif;
+            if (guideVocalActif) {
+                iconAudio.textContent = '🔊';
+                btnGuide.setAttribute('data-tooltip', 'Désactiver le guide vocal');
+                jouerserSon('francais.mp3'); // Joue l'introduction générale
+            } else {
+                iconAudio.textContent = '📣';
+                btnGuide.setAttribute('data-tooltip', 'Activer le guide vocal');
+                if (audioActuel) {
+                    audioActuel.pause();
+                }
+            }
+        });
+
+        // Association du survol des éléments au déclenchement des sons
+        document.querySelectorAll('[data-sound]').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                const son = this.getAttribute('data-sound');
+                jouerserSon(son);
+            });
+        });
     });
 </script>
 </body>
