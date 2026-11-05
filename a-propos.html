@@ -31,13 +31,13 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             const langue = getLangue();
-            const contenu = langue === "en" ? AProposEN : AProposFR;
-            const commun = langue === "en" ? CommunEN : CommunFR;
+            const contenu = langue === "en" ? (typeof AProposEN !== "undefined" ? AProposEN : {}) : (typeof AProposFR !== "undefined" ? AProposFR : {});
+            const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-            document.title = contenu.titre;
-            document.getElementById("page-title").textContent = contenu.titre;
-            document.getElementById("titre-page").textContent = contenu.titre;
-            document.getElementById("banniere-texte").textContent = contenu.banniere;
+            document.title = contenu.titre || "À propos";
+            document.getElementById("page-title").textContent = contenu.titre || "À propos";
+            document.getElementById("titre-page").textContent = contenu.titre || "À propos";
+            if (contenu.banniere) document.getElementById("banniere-texte").textContent = contenu.banniere;
 
             const description = document.getElementById("description-a-propos");
             description.innerHTML = "";
@@ -54,37 +54,42 @@
 
             const langDropdown = document.getElementById("lang-dropdown");
             langDropdown.innerHTML = langue === "en"
-                ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-                : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+                ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+                : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-            document.getElementById("lien-apropos").textContent = commun.info;
-            document.getElementById("lien-mentions").textContent = commun.mentions;
-            document.getElementById("lien-contact").textContent = commun.contact;
+            if (commun.info) document.getElementById("lien-apropos").textContent = commun.info;
+            if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+            if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
 
-            // Gestion de l'affichage Mon Compte selon le localStorage
+            // Gestion de l'utilisateur connecté & lien vers Connexion.html / MonCompte.html
             const user = JSON.parse(localStorage.getItem("user") || "null");
-            const lienCompteDestination = (user && user.firstName) ? "MonCompte.html" : "Connexion.html";
+            const estConnecte = user && user.firstName;
+            const lienCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
 
-            if (texteCommun.menu) {
+            const lienCompte = document.getElementById("lien-compte");
+            if (lienCompte) {
+                lienCompte.setAttribute("href", lienCompteDestination);
+                if (estConnecte) {
+                    lienCompte.textContent = user.firstName;
+                } else if (commun.compte) {
+                    lienCompte.textContent = commun.compte;
+                }
+            }
+
+            // Génération dynamique du menu
+            if (commun.menu) {
                 const menuContent = document.getElementById("menu-links");
                 const liens = ["location.html", "ports.html", lienCompteDestination, "historique.html", "faq.html", "avis.html"];
-                menuContent.innerHTML = texteCommun.menu.map((item, index) => {
+                menuContent.innerHTML = commun.menu.map((item, index) => {
                     return `<a href="${liens[index]}">${item}</a>`;
                 }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
             }
-
-            // Génération du menu de navigation vers .html
-            const menuContent = document.getElementById("menu-links");
-            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-            menuContent.innerHTML = commun.menu.map((item, index) => {
-                return `<a href="${liens[index]}.html">${item}</a>`;
-            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
         });
 
         document.addEventListener("click", function(event) {
             const dropdown = document.getElementById("lang-dropdown");
             const icon = document.getElementById("current-lang");
-            if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+            if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
                 dropdown.style.display = "none";
             }
         });
@@ -117,7 +122,7 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
