@@ -5,13 +5,12 @@
     <title id="page-title">Mon Compte</title>
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="MonCompte.css">
-    <link rel="stylesheet" href="nav-barre.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <script src="info-bateau.js" defer></script>
 </head>
 <body style="background-color: #c5d8d3;">
-<div class="navbar-barre"></div>
+
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu-vert.png" alt="Menu">
 </div>
@@ -22,10 +21,11 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a id="a-propos-link" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
+    <a id="mon-compte-link" href="MonCompte.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
         <img src="images/panier.png" alt="Panier">
     </a>
@@ -103,12 +103,19 @@
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
-        if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+        if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
             dropdown.style.display = "none";
         }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
+        // Redirection vers connexion si déconnecté
+        const user = JSON.parse(localStorage.getItem("user") || "null") || JSON.parse(localStorage.getItem("userData") || "null");
+        if (!user || (!user.firstName && !user.prenom)) {
+            window.location.href = "Connexion.html";
+            return;
+        }
+
         const langue = getLangue();
         const texte = langue === "en" ? (typeof CompteEN !== "undefined" ? CompteEN : {}) : (typeof CompteFR !== "undefined" ? CompteFR : {});
         const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
@@ -135,34 +142,42 @@
         if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
         if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
 
-        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
-        document.getElementById("lang-dropdown").innerHTML = langue === "en"
-            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+        // Statut Utilisateur en haut à droite
+        const monCompteLink = document.getElementById("mon-compte-link");
+        if (monCompteLink) {
+            monCompteLink.textContent = user.firstName || user.prenom;
+            monCompteLink.setAttribute("href", "MonCompte.html");
+        }
 
+        document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+        const langDropdown = document.getElementById("lang-dropdown");
+        langDropdown.innerHTML = langue === "en"
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
+
+        // Génération du menu de navigation
         if (commun.menu) {
-            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            const liens = ["location.html", "ports.html", "MonCompte.html", "historique.html", "faq.html", "avis.html"];
             const menuContent = document.getElementById("menu-links");
             menuContent.innerHTML = commun.menu.map((item, index) => {
-                return `<a href="${liens[index]}.html">${item}</a>`;
+                return `<a href="${liens[index]}">${item}</a>`;
             }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
         }
 
         // Charger les informations enregistrées
-        chargerUser();
+        chargerUser(user);
     });
 
-    function chargerUser() {
-        const user = JSON.parse(localStorage.getItem("user") || "null") || JSON.parse(localStorage.getItem("userData") || "null");
+    function chargerUser(user) {
         if (user) {
             if (user.lastName || user.nom) document.getElementById("nom").value = user.lastName || user.nom;
             if (user.firstName || user.prenom) document.getElementById("prenom").value = user.firstName || user.prenom;
             if (user.email) document.getElementById("mail").value = user.email;
-            if (user.phone) document.getElementById("telephone").value = user.phone;
-            if (user.street) document.getElementById("rue").value = user.street;
-            if (user.postalCode) document.getElementById("code-postal").value = user.postalCode;
-            if (user.city) document.getElementById("ville").value = user.city;
-            if (user.country) document.getElementById("pays").value = user.pays || user.country;
+            if (user.phone || user.telephone) document.getElementById("telephone").value = user.phone || user.telephone;
+            if (user.street || user.rue) document.getElementById("rue").value = user.street || user.rue;
+            if (user.postalCode || user.codePostal) document.getElementById("code-postal").value = user.postalCode || user.codePostal;
+            if (user.city || user.ville) document.getElementById("ville").value = user.city || user.ville;
+            if (user.country || user.pays) document.getElementById("pays").value = user.country || user.pays;
         }
     }
 

@@ -5,13 +5,11 @@
   <title id="page-title">Réinitialiser votre mot de passe</title>
   <link rel="stylesheet" href="PageAccueil.css">
   <link rel="stylesheet" href="mdp-oublier.css">
-  <link rel="stylesheet" href="nav-barre.css">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
   <script src="info-bateau.js" defer></script>
 </head>
 <body style="background-color: #c5d8d3;">
-<div class="navbar-barre"></div>
 
 <!-- Zone de message de confirmation -->
 <div id="message-success" style="display: none; flex-direction: column; align-items: center; justify-content: center; margin-top: 150px;">
@@ -29,10 +27,11 @@
 
 <div class="top-right">
   <div class="language-selector">
-    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
   <a id="a-propos-link" href="a-propos.html" style="color: #e0e0d5; text-decoration: none;">À propos</a>
+  <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
   <a href="favoris.html">
     <img src="images/panier.png" alt="Panier">
   </a>
@@ -94,7 +93,7 @@
   document.addEventListener("click", function(event) {
     const dropdown = document.getElementById("lang-dropdown");
     const icon = document.getElementById("current-lang");
-    if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+    if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
       dropdown.style.display = "none";
     }
   });
@@ -116,16 +115,32 @@
     if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
     if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
 
+    // Statut Utilisateur connecté & redirection dynamique
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const estConnecte = user && user.firstName;
+    const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
+
+    const lienCompte = document.getElementById("lien-compte");
+    if (lienCompte) {
+      lienCompte.setAttribute("href", pageCompteDestination);
+      if (estConnecte) {
+        lienCompte.textContent = user.firstName;
+      } else if (commun.compte) {
+        lienCompte.textContent = commun.compte;
+      }
+    }
+
     document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
     document.getElementById("lang-dropdown").innerHTML = langue === "en"
-            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
+    // Génération du menu latéral avec redirection dynamique
     if (commun.menu) {
-      const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+      const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
       const menuContent = document.getElementById("menu-links");
       menuContent.innerHTML = commun.menu.map((item, index) => {
-        return `<a href="${liens[index]}.html">${item}</a>`;
+        return `<a href="${liens[index]}">${item}</a>`;
       }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
     }
   });
