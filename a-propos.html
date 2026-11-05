@@ -63,13 +63,14 @@
 
             // Gestion de l'affichage Mon Compte selon le localStorage
             const user = JSON.parse(localStorage.getItem("user") || "null");
-            const lienCompte = document.getElementById("lien-compte");
-            if (user && user.firstName) {
-                lienCompte.textContent = user.firstName;
-                lienCompte.setAttribute("href", "MonCompte.html");
-            } else {
-                lienCompte.textContent = commun.compte;
-                lienCompte.setAttribute("href", "Connexion.html");
+            const lienCompteDestination = (user && user.firstName) ? "MonCompte.html" : "Connexion.html";
+
+            if (texteCommun.menu) {
+                const menuContent = document.getElementById("menu-links");
+                const liens = ["location.html", "ports.html", lienCompteDestination, "historique.html", "faq.html", "avis.html"];
+                menuContent.innerHTML = texteCommun.menu.map((item, index) => {
+                    return `<a href="${liens[index]}">${item}</a>`;
+                }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
             }
 
             // Génération du menu de navigation vers .html
