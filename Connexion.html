@@ -2,172 +2,236 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title id="page-title">Connexion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Connexion - Cap'Tivant</title>
   <link rel="stylesheet" href="PageAccueil.css">
-  <link rel="stylesheet" href="Connexion.css">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
   <script src="info-bateau.js" defer></script>
-  <script>
-    function getLangue() {
-      return localStorage.getItem("langue") || "fr";
+  <style>
+    .connexion-card {
+      background: white;
+      padding: 35px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
     }
 
-    function toggleMenu() {
-      const menu = document.getElementById("menu-overlay");
-      menu.classList.toggle("active");
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+      text-align: left;
     }
 
-    function toggleLangDropdown() {
-      const dropdown = document.getElementById("lang-dropdown");
-      dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    .input-group input {
+      width: 100%;
+      padding: 12px 15px 12px 42px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 0.95em;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.3s;
     }
 
-    function changerLangue(langue) {
-      localStorage.setItem("langue", langue);
-      location.reload();
+    .input-group input:focus {
+      border-color: #577550;
     }
 
-    document.addEventListener("click", function(event) {
-      const dropdown = document.getElementById("lang-dropdown");
-      const icon = document.getElementById("current-lang");
-      if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
-        dropdown.style.display = "none";
-      }
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-      const langue = getLangue();
-      const commun = langue === "en" ? CommunEN : CommunFR;
-      const texte = langue === "en" ? ConnexionEN : ConnexionFR;
-
-      document.title = texte.titre;
-      document.getElementById("page-title").textContent = texte.titre;
-      document.getElementById("titre-page").textContent = texte.titre;
-      document.getElementById("email").placeholder = texte.email;
-      document.getElementById("password").placeholder = texte.mdp;
-      document.getElementById("btn-connexion").textContent = texte.bouton;
-      document.getElementById("inscription-lien").textContent = texte.inscription;
-      document.getElementById("mdp-lien").textContent = texte.mdpOublie;
-
-      document.getElementById("lien-mentions").textContent = commun.mentions;
-      document.getElementById("lien-contact").textContent = commun.contact;
-
-      const currentLang = document.getElementById("current-lang");
-      currentLang.src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
-
-      const langDropdown = document.getElementById("lang-dropdown");
-      langDropdown.innerHTML = langue === "en"
-              ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-              : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
-
-      const menuContent = document.getElementById("menu-links");
-      const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-      menuContent.innerHTML = commun.menu.map((item, index) => {
-        return `<a href="${liens[index]}.html">${item}</a>`;
-      }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
-
-      const lienApropos = document.getElementById("lien-apropos");
-      lienApropos.textContent = commun.info;
-      lienApropos.setAttribute("href", "a-propos.html");
-    });
-
-    // Traitement de la connexion côté navigateur
-    function simulerConnexion(event) {
-      event.preventDefault();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const errorMsg = document.getElementById("error-message");
-
-      if (!email || !password) {
-        errorMsg.textContent = "Veuillez remplir tous les champs.";
-        errorMsg.style.display = "block";
-        return;
-      }
-
-      // Enregistre l'utilisateur connecté dans localStorage
-      const user = {
-        email: email,
-        firstName: email.split('@')[0] || "Utilisateur"
-      };
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Redirection vers MonCompte
-      window.location.href = "MonCompte.html";
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1em;
+      color: #777;
     }
 
-    function togglePasswordVisibility(inputId) {
-      const input = document.getElementById(inputId);
-      const icon = document.querySelector(`[onclick="togglePasswordVisibility('${inputId}')"]`);
-
-      if (input.type === "password") {
-        input.type = "text";
-        icon.src = "images/eye-open.png";
-        icon.alt = "Masquer mot de passe";
-      } else {
-        input.type = "password";
-        icon.src = "images/eye-closed.png";
-        icon.alt = "Afficher mot de passe";
-      }
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: #f29066;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.1s;
     }
-  </script>
+
+    .btn-submit:hover {
+      background-color: #e57d52;
+      transform: translateY(-1px);
+    }
+
+    .links-container {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .links-container a {
+      color: #577550;
+      text-decoration: none;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .links-container a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-<body>
+<body style="background-color: #c5d8d3; display: flex; flex-direction: column; min-height: 100vh;">
+
+<!-- Menu -->
 <div class="top-left" onclick="toggleMenu()">
-  <img src="images/menu-vert.png" alt="Menu">
+  <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
   <div class="menu-content" id="menu-links"></div>
 </div>
 
-<div class="top-right">
-  <div class="language-selector">
-    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
-    <div id="lang-dropdown" class="lang-dropdown"></div>
-  </div>
-  <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
-  <a href="favoris.html">
-    <img src="images/panier.png" alt="Panier">
-  </a>
-</div>
-
+<!-- En-tête centre -->
 <div class="top-center">
   <div class="logo-block">
     <a href="PageAccueil.html">
-      <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
+      <img src="images/logo.png" alt="Logo">
     </a>
     <p class="logo-slogan">Cap'Tivant</p>
-    <h1 class="page-title" id="titre-page">Connexion</h1>
+    <h1 class="page-title" id="titre-page" style="color: #e0e0d5">Connexion</h1>
   </div>
+</div>
 
-  <form onsubmit="simulerConnexion(event)" class="formulaire-connexion">
-    <div class="champ">
-      <img src="images/email.png" alt="email">
-      <input type="email" id="email" placeholder="Entrez votre adresse mail" required>
-    </div>
-    <div class="champ">
-      <img src="images/mdp.png" alt="mot de passe">
-      <div class="input-container" style="display: flex; align-items: center; width: 100%;">
-        <input type="password" id="password" placeholder="Entrez votre mot de passe" required style="flex-grow: 1;">
-        <img src="images/eye-closed.png" alt="Afficher mot de passe" class="eye-icon" onclick="togglePasswordVisibility('password')" style="cursor: pointer; margin-left: 5px;">
+<!-- Haut droit -->
+<div class="top-right">
+  <div class="language-selector">
+    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
+    <div id="lang-dropdown" class="lang-dropdown"></div>
+  </div>
+  <a href="a-propos.html" id="lien-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
+  <a href="Connexion.html" id="lien-compte" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
+  <a href="favoris.html"><img src="images/panier.png" alt="Panier"></a>
+</div>
+
+<!-- Formulaire de Connexion -->
+<main style="flex: 1; margin-top: 150px; padding-bottom: 40px; display: flex; align-items: center; justify-content: center; width: 100%;">
+  <div class="connexion-card">
+    <form id="form-login" onsubmit="connexionUtilisateur(event)">
+      <div class="input-group">
+        <span class="input-icon">✉️</span>
+        <input type="email" id="email" placeholder="Adresse e-mail" required>
       </div>
+
+      <div class="input-group">
+        <span class="input-icon">🔒</span>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+      </div>
+
+      <button type="submit" class="btn-submit" id="btn-connexion">Se connecter</button>
+    </form>
+
+    <div class="links-container">
+      <a href="Inscription.html" id="link-signup">Pas encore de compte ? S'inscrire</a>
+      <a href="mdp-oublier.html" id="link-forgot">Mot de passe oublié ?</a>
     </div>
-    <button type="submit" class="connexion" id="btn-connexion" style="border: none; cursor: pointer;">Se connecter</button>
-  </form>
-
-  <p id="error-message" style="color:red; text-align:center; display:none; margin-top: 10px;"></p>
-
-  <div class="logo-block">
-    <a id="inscription-lien" href="Inscription.html" class="inscription" style="text-decoration: none; font-size: 1.2em">Inscription</a>
-    <a id="mdp-lien" href="mdp-oublier.html" class="mdp-oublier" style="text-decoration: none; font-size: 1.2em">Mot de passe oublié</a>
   </div>
+</main>
+
+<!-- Pied de page -->
+<div class="bouton-bas" style="background: transparent; padding: 20px 0;">
+  <a href="MentionsLegales.html" id="lien-mentions" class="bottom-text">Mentions légales</a>
+  <span class="bottom-text">•</span>
+  <a href="Contact.html" id="lien-contact" class="bottom-text">Contact</a>
 </div>
 
-<div class="bouton-bas">
-  <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
-  <span class="bottom-text" style="color: #577550">•</span>
-  <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550">Contact</a>
-</div>
+<script>
+  function toggleMenu() {
+    document.getElementById("menu-overlay").classList.toggle("active");
+  }
+
+  function toggleLangDropdown() {
+    const dropdown = document.getElementById("lang-dropdown");
+    dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+  }
+
+  function changerLangue(langue) {
+    localStorage.setItem("langue", langue);
+    location.reload();
+  }
+
+  function getLangue() {
+    return localStorage.getItem("langue") || "fr";
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const langue = getLangue();
+    const texteCommun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
+
+    // Textes traduits
+    const isEN = langue === "en";
+    document.title = isEN ? "Login - Cap'Tivant" : "Connexion - Cap'Tivant";
+    document.getElementById("titre-page").textContent = isEN ? "Login" : "Connexion";
+    document.getElementById("email").placeholder = isEN ? "Enter your email address" : "Adresse e-mail";
+    document.getElementById("password").placeholder = isEN ? "Enter your password" : "Mot de passe";
+    document.getElementById("btn-connexion").textContent = isEN ? "Log in" : "Se connecter";
+    document.getElementById("link-signup").textContent = isEN ? "Sign up" : "Pas encore de compte ? S'inscrire";
+    document.getElementById("link-forgot").textContent = isEN ? "Forgot password?" : "Mot de passe oublié ?";
+
+    if (texteCommun.info) document.getElementById("lien-apropos").textContent = texteCommun.info;
+    if (texteCommun.mentions) document.getElementById("lien-mentions").textContent = texteCommun.mentions;
+    if (texteCommun.contact) document.getElementById("lien-contact").textContent = texteCommun.contact;
+
+    // Statut Compte en haut à droite
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const lienCompte = document.getElementById("lien-compte");
+    if (lienCompte) {
+      if (user && user.firstName) {
+        lienCompte.textContent = user.firstName;
+        lienCompte.setAttribute("href", "MonCompte.html");
+      } else if (texteCommun.compte) {
+        lienCompte.textContent = texteCommun.compte;
+        lienCompte.setAttribute("href", "Connexion.html");
+      }
+    }
+
+    // Menu overlay
+    if (texteCommun.menu) {
+      const menuContent = document.getElementById("menu-links");
+      const destinationCompte = (user && user.firstName) ? "MonCompte.html" : "Connexion.html";
+      const liens = ["location.html", "ports.html", destinationCompte, "historique.html", "faq.html", "avis.html"];
+
+      menuContent.innerHTML = texteCommun.menu.map((item, index) => {
+        return `<a href="${liens[index]}">${item}</a>`;
+      }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+    }
+
+    // Drapeau
+    document.getElementById("current-lang").src = isEN ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+    document.getElementById("lang-dropdown").innerHTML = isEN
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
+  });
+
+  function connexionUtilisateur(e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const firstName = email.split('@')[0]; // Extrait un prénom fictif de l'adresse mail
+
+    const userObj = {
+      email: email,
+      firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1)
+    };
+
+    localStorage.setItem("user", JSON.stringify(userObj));
+    alert(getLangue() === "en" ? "Successfully logged in!" : "Connexion réussie !");
+    window.location.href = "MonCompte.html";
+  }
+</script>
 </body>
 </html>
