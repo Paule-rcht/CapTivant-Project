@@ -1,6 +1,6 @@
 # ⛵ Cap'Tivant — Plateforme de Location de Bateaux
 
-https://paule-rcht.github.io/CapTivant-Project/MentionsLegales.html
+https://paule-rcht.github.io/CapTivant-Project/PageAccueil.html
 
 **Cap'Tivant** est une application web front-end complète dédiée à la réservation et à la location de bateaux. Initialement conçue avec un back-end PHP/MySQL, l'application a été entièrement refondue en **application client-side 100 % statique** afin d'être hébergée gratuitement et de manière optimale sur **GitHub Pages**.
 
