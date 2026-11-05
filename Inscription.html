@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <script src="info-bateau.js" defer></script>
 </head>
-<body>
+<body style="background-color: #c5d8d3;">
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu-vert.png" alt="Menu">
 </div>
@@ -20,7 +20,7 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a id="a-propos-link" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
@@ -40,7 +40,7 @@
     </div>
 </div>
 
-<main class="contenu-scrollable">
+<main class="contenu-scrollable" style="margin-top: 140px;">
     <form onsubmit="traiterInscription(event)" class="formulaire-inscription">
         <div class="champ">
             <br>
@@ -106,8 +106,8 @@
 
     <p id="error-message" style="color: red; text-align: center; display: none; margin-top: 10px;"></p>
 
-    <div class="logo-block" style="font-size: 1.2em">
-        <a href="Connexion.html" class="connexion" id="lien-connexion">Se connecter</a>
+    <div class="logo-block" style="font-size: 1.2em; text-align: center; margin-top: 15px;">
+        <a href="Connexion.html" class="connexion" id="lien-connexion" style="color: #577550; font-weight: bold;">Se connecter</a>
     </div>
     <div class="conditions-general">
         <div class="champ-obligatoire">
@@ -142,46 +142,66 @@
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
-        if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+        if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
             dropdown.style.display = "none";
         }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
         const langue = localStorage.getItem("langue") || "fr";
-        const texte = langue === "en" ? InscriptionEN : InscriptionFR;
-        const commun = langue === "en" ? CommunEN : CommunFR;
+        const texte = langue === "en" ? (typeof InscriptionEN !== "undefined" ? InscriptionEN : {}) : (typeof InscriptionFR !== "undefined" ? InscriptionFR : {});
+        const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-        document.getElementById("page-title").textContent = texte.titre;
-        document.getElementById("titre-page").textContent = texte.titre;
-        document.getElementById("nom").placeholder = texte.nom;
-        document.getElementById("prenom").placeholder = texte.prenom;
-        document.getElementById("email").placeholder = texte.email;
-        document.getElementById("mdp").placeholder = texte.mdp;
-        document.getElementById("mdp-confirm").placeholder = texte.confirmerMdp;
-        document.getElementById("conditions-text").textContent = texte.conditions;
-        document.getElementById("btn-inscription").textContent = texte.bouton;
-        document.getElementById("lien-connexion").textContent = texte.lienConnexion;
-        document.getElementById("champs").textContent = texte.champs;
-        document.getElementById("newsletter-text").textContent = texte.newsletter;
+        if (texte.titre) {
+            document.title = texte.titre;
+            document.getElementById("page-title").textContent = texte.titre;
+            document.getElementById("titre-page").textContent = texte.titre;
+        }
 
-        document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-contact").textContent = commun.contact;
+        if (texte.nom) document.getElementById("nom").placeholder = texte.nom;
+        if (texte.prenom) document.getElementById("prenom").placeholder = texte.prenom;
+        if (texte.email) document.getElementById("email").placeholder = texte.email;
+        if (texte.mdp) document.getElementById("mdp").placeholder = texte.mdp;
+        if (texte.confirmerMdp) document.getElementById("mdp-confirm").placeholder = texte.confirmerMdp;
+        if (texte.conditions) document.getElementById("conditions-text").textContent = texte.conditions;
+        if (texte.bouton) document.getElementById("btn-inscription").textContent = texte.bouton;
+        if (texte.lienConnexion) document.getElementById("lien-connexion").textContent = texte.lienConnexion;
+        if (texte.champs) document.getElementById("champs").textContent = texte.champs;
+        if (texte.newsletter) document.getElementById("newsletter-text").textContent = texte.newsletter;
 
-        document.getElementById("a-propos-link").textContent = commun.info;
-        document.getElementById("mon-compte-link").textContent = commun.compte;
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
+        if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
+
+        // Gestion de l'état connecté & redirection dynamique
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const estConnecte = user && user.firstName;
+        const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
+
+        const monCompteLink = document.getElementById("mon-compte-link");
+        if (monCompteLink) {
+            monCompteLink.setAttribute("href", pageCompteDestination);
+            if (estConnecte) {
+                monCompteLink.textContent = user.firstName;
+            } else if (commun.compte) {
+                monCompteLink.textContent = commun.compte;
+            }
+        }
+
+        // Génération dynamique du menu latéral
+        if (commun.menu) {
+            const menuContent = document.getElementById("menu-links");
+            const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
 
         document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         const langDropdown = document.getElementById("lang-dropdown");
         langDropdown.innerHTML = langue === "en"
-            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
-
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        const menuContent = document.getElementById("menu-links");
-        menuContent.innerHTML = commun.menu.map((item, index) => {
-            return `<a href="${liens[index]}.html">${item}</a>`;
-        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
     });
 
     function togglePasswordVisibility(inputId) {
@@ -209,30 +229,36 @@
         const mentions = document.getElementById("mentions").checked;
         const errorMsg = document.getElementById("error-message");
 
+        const langue = localStorage.getItem("langue") || "fr";
+
         if (!nom || !prenom || !email || !mdp || !mdpConfirm) {
-            errorMsg.textContent = "Veuillez remplir tous les champs.";
+            errorMsg.textContent = langue === "en" ? "Please fill in all fields." : "Veuillez remplir tous les champs.";
             errorMsg.style.display = "block";
             return;
         }
 
         if (mdp !== mdpConfirm) {
-            errorMsg.textContent = "Les mots de passe ne correspondent pas.";
+            errorMsg.textContent = langue === "en" ? "Passwords do not match." : "Les mots de passe ne correspondent pas.";
             errorMsg.style.display = "block";
             return;
         }
 
         if (!mentions) {
-            errorMsg.textContent = "Veuillez accepter les conditions d'utilisation.";
+            errorMsg.textContent = langue === "en" ? "Please accept the terms of use." : "Veuillez accepter les conditions d'utilisation.";
             errorMsg.style.display = "block";
             return;
         }
 
-        // Sauvegarde de l'utilisateur dans le localStorage
-        const userData = { nom, prenom, email, mdp };
-        localStorage.setItem("userData", JSON.stringify(userData));
+        // Création et enregistrement de l'utilisateur dans localStorage
+        const userObj = {
+            lastName: nom,
+            firstName: prenom,
+            email: email
+        };
+        localStorage.setItem("user", JSON.stringify(userObj));
 
-        // Redirection vers la page de connexion
-        window.location.href = "Connexion.html";
+        alert(langue === "en" ? "Account created successfully!" : "Compte créé avec succès !");
+        window.location.href = "MonCompte.html";
     }
 </script>
 </body>
