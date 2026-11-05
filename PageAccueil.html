@@ -8,53 +8,6 @@
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        /* Bouton Audio unique en bas à droite */
-        #music-control {
-            position: fixed;
-            right: 20px;
-            bottom: 30px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 1000;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            border: 2px solid #577550;
-        }
-
-        #music-control:hover {
-            background: #ffffff;
-            transform: scale(1.1);
-        }
-
-        #music-control::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            right: 65px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #333;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            font-family: Arial, sans-serif;
-        }
-
-        #music-control:hover::after {
-            opacity: 1;
-        }
-
         /* Pied de page fixe tout en bas */
         .bouton-bas {
             position: fixed;
@@ -128,14 +81,6 @@
         </div>
     </div>
 </section>
-
-<!-- Unique Bouton Audio -->
-<div id="music-control" data-tooltip="Écouter la présentation audio">
-    <span style="font-size: 22px;" id="icon-audio">📣</span>
-</div>
-
-<!-- Fichier Audio Français -->
-<audio id="background-music" src="son/francais.mp3"></audio>
 
 <!-- Pied de page -->
 <div class="bouton-bas">
@@ -233,38 +178,6 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
-        }
-
-        // Gestion de l'unique bouton Audio
-        const music = document.getElementById('background-music');
-        const control = document.getElementById('music-control');
-        const iconAudio = document.getElementById('icon-audio');
-
-        if (music && control) {
-            music.volume = 0.8;
-
-            control.addEventListener('click', function () {
-                if (music.paused) {
-                    music.play().then(() => {
-                        iconAudio.textContent = '🔊';
-                        control.setAttribute('data-tooltip', 'Arrêter la présentation audio');
-                    }).catch(err => {
-                        console.error("Erreur de lecture audio :", err);
-                        alert('Veuillez cliquer sur la page pour autoriser la lecture du son.');
-                    });
-                } else {
-                    music.pause();
-                    music.currentTime = 0;
-                    iconAudio.textContent = '📣';
-                    control.setAttribute('data-tooltip', 'Écouter la présentation audio');
-                }
-            });
-
-            // Remettre l'icône originale une fois la lecture audio terminée
-            music.addEventListener('ended', function() {
-                iconAudio.textContent = '📣';
-                control.setAttribute('data-tooltip', 'Écouter la présentation audio');
-            });
         }
     });
 </script>
