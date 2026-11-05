@@ -8,78 +8,63 @@
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        body.accessibility-mode {
-            font-size: 18px;
-            line-height: 1.6;
-        }
-
-        body.accessibility-mode a,
-        body.accessibility-mode button {
-            padding: 10px;
-            border: 2px solid #000;
-            font-size: 16px;
-        }
-
-        body.accessibility-mode .menu-content a {
-            padding: 15px;
-            font-size: 20px;
-        }
-
-        #access-control, #music-control {
+        /* Bouton Audio unique en bas à droite */
+        #music-control {
             position: fixed;
             right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 12px;
+            bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             z-index: 1000;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            border: 2px solid #4a4a4a;
+            border: 2px solid #577550;
         }
 
-        #music-control {
-            bottom: 20px;
-        }
-
-        #access-control {
-            bottom: 80px;
-        }
-
-        #access-control img {
-            width: 24px;
-            height: 24px;
-        }
-
-        #access-control:hover, #music-control:hover {
-            background: rgba(255, 255, 255, 1);
+        #music-control:hover {
+            background: #ffffff;
             transform: scale(1.1);
         }
 
-        #access-control::after, #music-control::after {
+        #music-control::after {
             content: attr(data-tooltip);
             position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 65px;
+            top: 50%;
+            transform: translateY(-50%);
             background: #333;
             color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
             white-space: nowrap;
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
+            font-family: Arial, sans-serif;
         }
 
-        #access-control:hover::after, #music-control:hover::after {
+        #music-control:hover::after {
             opacity: 1;
+        }
+
+        /* Pied de page fixe tout en bas */
+        .bouton-bas {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(197, 216, 211, 0.95);
+            padding: 15px 0;
+            text-align: center;
+            z-index: 900;
         }
     </style>
 </head>
@@ -144,20 +129,19 @@
     </div>
 </section>
 
-<!-- Boutons d'accessibilité et de musique -->
-<div id="access-control" data-tooltip="Activer accessibilité">
-    <img src="images/menu.png" alt="Accessibilité" style="filter: invert(1);">
+<!-- Unique Bouton Audio -->
+<div id="music-control" data-tooltip="Écouter la présentation audio">
+    <span style="font-size: 22px;" id="icon-audio">📣</span>
 </div>
-<div id="music-control" data-tooltip="Activer la musique">🔇</div>
 
-<!-- Audio d'ambiance optionnel -->
-<audio id="background-music" loop src="audio/mer.mp3"></audio>
+<!-- Fichier Audio Français -->
+<audio id="background-music" src="son/francais.mp3"></audio>
 
 <!-- Pied de page -->
-<div class="bottom-center">
-    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text">Mentions légales</a>
-    <span class="bottom-text">•</span>
-    <a id="lien-contact" href="Contact.html" class="bottom-text">Contact</a>
+<div class="bouton-bas">
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550;">Mentions légales</a>
+    <span class="bottom-text" style="color: #577550;">•</span>
+    <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550;">Contact</a>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -182,12 +166,6 @@
         return localStorage.getItem("langue") || "fr";
     }
 
-    function toggleAccessibility() {
-        const isActive = document.body.classList.toggle('accessibility-mode');
-        document.getElementById('access-control').setAttribute('data-tooltip', isActive ? 'Désactiver accessibilité' : 'Activer accessibilité');
-        localStorage.setItem('accessibility_mode', isActive ? '1' : '0');
-    }
-
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
@@ -201,12 +179,6 @@
         const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
         const texte = langue === "en" ? (typeof AccueilEN !== "undefined" ? AccueilEN : {}) : (typeof AccueilFR !== "undefined" ? AccueilFR : {});
 
-        // Restauration du mode accessibilité
-        if (localStorage.getItem('accessibility_mode') === '1') {
-            document.body.classList.add('accessibility-mode');
-            document.getElementById('access-control').setAttribute('data-tooltip', 'Désactiver accessibilité');
-        }
-
         if (texte.titre) document.getElementById("page-title").textContent = texte.titre;
         if (texte.textePrincipal) document.getElementById("texte-principal").textContent = texte.textePrincipal;
         if (texte.texteSecondaire) document.getElementById("texte-secondaire").textContent = texte.texteSecondaire;
@@ -215,7 +187,7 @@
         if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
         if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
 
-        // Gestion de la session utilisateur & redirection dynamique
+        // Session utilisateur & redirection dynamique
         const user = JSON.parse(localStorage.getItem("user") || "null");
         const estConnecte = user && user.firstName;
         const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
@@ -236,7 +208,7 @@
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-        // Génération du menu latéral avec destination dynamique
+        // Menu latéral dynamique
         if (commun.menu) {
             const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
             const menuContent = document.getElementById("menu-links");
@@ -255,7 +227,7 @@
             }, 2000);
         }
 
-        // Initialisation de la carte Leaflet
+        // Initialisation Carte Leaflet
         if (document.getElementById('carte')) {
             const map = L.map('carte').setView([47.2186, -1.5536], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -263,38 +235,36 @@
             }).addTo(map);
         }
 
-        // Musique d'ambiance
+        // Gestion de l'unique bouton Audio
         const music = document.getElementById('background-music');
         const control = document.getElementById('music-control');
-        if (music && control) {
-            music.volume = 0.4;
+        const iconAudio = document.getElementById('icon-audio');
 
-            if (localStorage.getItem('musicEnabled') === 'true') {
-                music.play().catch(() => {});
-                control.textContent = '🔊';
-            }
+        if (music && control) {
+            music.volume = 0.8;
 
             control.addEventListener('click', function () {
                 if (music.paused) {
                     music.play().then(() => {
-                        control.textContent = '🔊';
-                        control.setAttribute('data-tooltip', langue === 'fr' ? 'Couper la musique' : 'Mute music');
-                        localStorage.setItem('musicEnabled', 'true');
-                    }).catch(() => {
-                        alert(langue === 'fr' ? 'Cliquez sur la page pour activer le son' : 'Click on the page to enable sound');
+                        iconAudio.textContent = '🔊';
+                        control.setAttribute('data-tooltip', 'Arrêter la présentation audio');
+                    }).catch(err => {
+                        console.error("Erreur de lecture audio :", err);
+                        alert('Veuillez cliquer sur la page pour autoriser la lecture du son.');
                     });
                 } else {
                     music.pause();
-                    control.textContent = '🔇';
-                    control.setAttribute('data-tooltip', langue === 'fr' ? 'Activer la musique' : 'Enable music');
-                    localStorage.setItem('musicEnabled', 'false');
+                    music.currentTime = 0;
+                    iconAudio.textContent = '📣';
+                    control.setAttribute('data-tooltip', 'Écouter la présentation audio');
                 }
             });
-        }
 
-        const accessBtn = document.getElementById('access-control');
-        if (accessBtn) {
-            accessBtn.addEventListener('click', toggleAccessibility);
+            // Remettre l'icône originale une fois la lecture audio terminée
+            music.addEventListener('ended', function() {
+                iconAudio.textContent = '📣';
+                control.setAttribute('data-tooltip', 'Écouter la présentation audio');
+            });
         }
     });
 </script>
