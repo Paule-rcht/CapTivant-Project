@@ -6,7 +6,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="PageAccueil.css">
-    <link rel="stylesheet" href="nav-barre.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         body.accessibility-mode {
@@ -85,7 +84,6 @@
     </style>
 </head>
 <body>
-<div class="navbar-barre"></div>
 
 <div class="background-fixe"></div>
 
@@ -101,10 +99,10 @@
 <!-- Haut de page -->
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
-    <a id="a-propos-link" href="a-propos.html" class="top-infos">À propos</a>
+    <a id="a-propos-link" href="a-propos.html" class="top-infos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
     <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
         <img src="images/panier.png" alt="Panier">
@@ -203,7 +201,7 @@
         const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
         const texte = langue === "en" ? (typeof AccueilEN !== "undefined" ? AccueilEN : {}) : (typeof AccueilFR !== "undefined" ? AccueilFR : {});
 
-        // Restauration du mode accessibilité si actif précédemment
+        // Restauration du mode accessibilité
         if (localStorage.getItem('accessibility_mode') === '1') {
             document.body.classList.add('accessibility-mode');
             document.getElementById('access-control').setAttribute('data-tooltip', 'Désactiver accessibilité');
@@ -217,28 +215,32 @@
         if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
         if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
 
-        // Gestion Compte / Utilisateur connecté
+        // Gestion de la session utilisateur & redirection dynamique
         const user = JSON.parse(localStorage.getItem("user") || "null");
+        const estConnecte = user && user.firstName;
+        const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
+
         const lienCompte = document.getElementById("lien-compte");
         if (lienCompte) {
-            if (user && user.firstName) {
+            lienCompte.setAttribute("href", pageCompteDestination);
+            if (estConnecte) {
                 lienCompte.textContent = user.firstName;
-                lienCompte.setAttribute("href", "MonCompte.html");
             } else if (commun.compte) {
                 lienCompte.textContent = commun.compte;
-                lienCompte.setAttribute("href", "Connexion.html");
             }
         }
 
+        // Sélecteur de langue
         document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === "en"
-            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
+        // Génération du menu latéral avec destination dynamique
         if (commun.menu) {
-            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+            const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
             const menuContent = document.getElementById("menu-links");
-            menuContent.innerHTML = commun.menu.map((item, index) => `<a href="${liens[index]}.html">${item}</a>`).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+            menuContent.innerHTML = commun.menu.map((item, index) => `<a href="${liens[index]}">${item}</a>`).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
         }
 
         // Animation Carrousel

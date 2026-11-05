@@ -6,7 +6,6 @@
   <title id="page-title">Nos Ports</title>
   <link rel="stylesheet" href="ports.css">
   <link rel="stylesheet" href="PageAccueil.css">
-  <link rel="stylesheet" href="nav-barre.css">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -15,7 +14,6 @@
   <script src="ports.js" defer></script>
 </head>
 <body style="background-color: #c5d8d3;">
-<div class="navbar-barre"></div>
 
 <!-- Menu gauche -->
 <div class="top-left" onclick="toggleMenu()">
@@ -98,25 +96,27 @@
     if (texteCommun.mentions) document.getElementById("lien-mentions").textContent = texteCommun.mentions;
     if (texteCommun.contact) document.getElementById("lien-contact").textContent = texteCommun.contact;
 
-    // Gestion utilisateur connecté via localStorage
+    // Statut Utilisateur connecté & redirection dynamique
     const user = JSON.parse(localStorage.getItem("user") || "null");
+    const estConnecte = user && user.firstName;
+    const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
+
     const lienCompte = document.getElementById("lien-compte");
     if (lienCompte) {
-      if (user && user.firstName) {
+      lienCompte.setAttribute("href", pageCompteDestination);
+      if (estConnecte) {
         lienCompte.textContent = user.firstName;
-        lienCompte.setAttribute("href", "MonCompte.html");
       } else if (texteCommun.compte) {
         lienCompte.textContent = texteCommun.compte;
-        lienCompte.setAttribute("href", "Connexion.html");
       }
     }
 
-    // Gestion du menu overlay
+    // Gestion du menu latéral dynamique
     if (texteCommun.menu) {
       const menuContent = document.getElementById("menu-links");
-      const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+      const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
       menuContent.innerHTML = texteCommun.menu.map((item, index) => {
-        return `<a class="lien-langue" href="${liens[index]}.html">${item}</a>`;
+        return `<a class="lien-langue" href="${liens[index]}">${item}</a>`;
       }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
     }
 
