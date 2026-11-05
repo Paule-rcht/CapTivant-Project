@@ -31,7 +31,7 @@
     document.addEventListener("click", function(event) {
       const dropdown = document.getElementById("lang-dropdown");
       const icon = document.getElementById("current-lang");
-      if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+      if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
         dropdown.style.display = "none";
       }
     });
@@ -51,35 +51,38 @@
 
       const langDropdown = document.getElementById("lang-dropdown");
       langDropdown.innerHTML = langue === "en"
-              ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-              : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
+              ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+              : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-      if (commun) {
-        const menuContent = document.getElementById("menu-links");
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        menuContent.innerHTML = commun.menu.map((item, index) => {
-          return `<a href="${liens[index]}.html">${item}</a>`;
-        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+      // Gestion de l'état connecté & redirection dynamique
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      const estConnecte = user && user.firstName;
+      const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
 
-        document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-contact").textContent = commun.contact;
-
-        const lienApropos = document.getElementById("lien-apropos");
-        if (lienApropos) {
-          lienApropos.textContent = commun.info;
+      const lienCompte = document.getElementById("lien-compte");
+      if (lienCompte) {
+        lienCompte.setAttribute("href", pageCompteDestination);
+        if (estConnecte) {
+          lienCompte.textContent = user.firstName;
+        } else if (commun && commun.compte) {
+          lienCompte.textContent = commun.compte;
         }
       }
 
-      // Gestion de l'état connecté
-      const user = JSON.parse(localStorage.getItem("user") || "null");
-      const lienCompte = document.getElementById("lien-compte");
-      if (lienCompte) {
-        if (user && user.firstName) {
-          lienCompte.textContent = user.firstName;
-          lienCompte.setAttribute("href", "MonCompte.html");
-        } else if (commun) {
-          lienCompte.textContent = commun.compte;
-          lienCompte.setAttribute("href", "Connexion.html");
+      // Génération du menu de navigation avec destination dynamique
+      if (commun && commun.menu) {
+        const menuContent = document.getElementById("menu-links");
+        const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
+        menuContent.innerHTML = commun.menu.map((item, index) => {
+          return `<a href="${liens[index]}">${item}</a>`;
+        }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
+
+        const lienApropos = document.getElementById("lien-apropos");
+        if (lienApropos && commun.info) {
+          lienApropos.textContent = commun.info;
         }
       }
 
@@ -109,7 +112,7 @@
         </div>
       `).join('');
 
-      // Gestion de l'accordéon (clic pour ouvrir/fermer)
+      // Accordéon
       document.querySelectorAll('.faq-question').forEach(q => {
         q.addEventListener('click', () => {
           const answer = q.nextElementSibling;
@@ -139,7 +142,7 @@
 
 <div class="top-right">
   <div class="language-selector">
-    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+    <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
   <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>

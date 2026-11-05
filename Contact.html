@@ -31,63 +31,72 @@
         document.addEventListener("click", function(event) {
             const dropdown = document.getElementById("lang-dropdown");
             const icon = document.getElementById("current-lang");
-            if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+            if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
                 dropdown.style.display = "none";
             }
         });
 
         document.addEventListener("DOMContentLoaded", function () {
             const langue = getLangue();
-            const texte = langue === "en" ? ContactEN : ContactFR;
-            const commun = langue === "en" ? CommunEN : CommunFR;
+            const texte = langue === "en" ? (typeof ContactEN !== "undefined" ? ContactEN : {}) : (typeof ContactFR !== "undefined" ? ContactFR : {});
+            const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-            document.title = texte.titre;
-            document.getElementById("page-title").textContent = texte.titre;
-            document.getElementById("titre-page").textContent = texte.titre;
-            document.getElementById("contact-texte").textContent = texte.texte;
+            if (texte.titre) {
+                document.title = texte.titre;
+                document.getElementById("page-title").textContent = texte.titre;
+                document.getElementById("titre-page").textContent = texte.titre;
+            }
+            if (texte.texte) document.getElementById("contact-texte").textContent = texte.texte;
 
             const nomInput = document.getElementById("nom");
             const mailInput = document.getElementById("mail");
             const telInput = document.getElementById("tel");
-            if (nomInput) nomInput.placeholder = texte.nom;
-            if (mailInput) mailInput.placeholder = texte.email;
-            if (telInput) telInput.placeholder = texte.telephone;
+            if (nomInput && texte.nom) nomInput.placeholder = texte.nom;
+            if (mailInput && texte.email) mailInput.placeholder = texte.email;
+            if (telInput && texte.telephone) telInput.placeholder = texte.telephone;
 
-            document.getElementById("label-msg").textContent = texte.label;
-            document.getElementById("msg").placeholder = texte.msg;
-            document.getElementById("btn-envoyer").textContent = texte.bouton;
+            if (texte.label) document.getElementById("label-msg").textContent = texte.label;
+            if (texte.msg) document.getElementById("msg").placeholder = texte.msg;
+            if (texte.bouton) document.getElementById("btn-envoyer").textContent = texte.bouton;
 
-            document.getElementById("lien-mentions").textContent = commun.mentions;
-            document.getElementById("lien-contact").textContent = commun.contact;
+            if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+            if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
 
+            const lienApropos = document.getElementById("lien-apropos");
+            if (lienApropos && commun.info) {
+                lienApropos.textContent = commun.info;
+            }
+
+            // Gestion de l'utilisateur connecté & redirection
             const user = JSON.parse(localStorage.getItem("user") || "null");
-            const lienCompteDestination = (user && user.firstName) ? "MonCompte.html" : "Connexion.html";
+            const estConnecte = user && user.firstName;
+            const lienCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
 
-            if (texteCommun.menu) {
+            const lienCompte = document.getElementById("lien-compte");
+            if (lienCompte) {
+                lienCompte.setAttribute("href", lienCompteDestination);
+                if (estConnecte) {
+                    lienCompte.textContent = user.firstName;
+                } else if (commun.compte) {
+                    lienCompte.textContent = commun.compte;
+                }
+            }
+
+            // Génération dynamique du menu latéral
+            if (commun.menu) {
                 const menuContent = document.getElementById("menu-links");
                 const liens = ["location.html", "ports.html", lienCompteDestination, "historique.html", "faq.html", "avis.html"];
-                menuContent.innerHTML = texteCommun.menu.map((item, index) => {
+                menuContent.innerHTML = commun.menu.map((item, index) => {
                     return `<a href="${liens[index]}">${item}</a>`;
                 }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
             }
 
+            // Drapeaux et sélecteur de langue
             document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
             const langDropdown = document.getElementById("lang-dropdown");
             langDropdown.innerHTML = langue === "en"
-                ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-                : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
-
-            const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-            const menuContent = document.getElementById("menu-links");
-            menuContent.innerHTML = commun.menu.map((item, index) => {
-                return `<a href="${liens[index]}.html">${item}</a>`;
-            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
-
-            const lienApropos = document.getElementById("lien-apropos");
-            if (lienApropos) {
-                lienApropos.textContent = commun.info;
-                lienApropos.setAttribute("href", "a-propos.html");
-            }
+                ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+                : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
         });
 
         function envoyerMessage(event) {
@@ -115,7 +124,7 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>

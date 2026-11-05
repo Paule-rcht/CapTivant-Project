@@ -21,11 +21,11 @@
 
 <div class="top-right">
     <div class="language-selector">
-        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
         <div id="lang-dropdown" class="lang-dropdown"></div>
     </div>
     <a id="lien-apropos" href="a-propos.html" style="color: #577550; text-decoration: none;">À propos</a>
-    <a id="compte-link" href="Connexion.html" class="top-infos" style="color: #577550;">Mon Compte</a>
+    <a id="compte-link" href="Connexion.html" class="top-infos" style="color: #577550; text-decoration: none;">Mon Compte</a>
     <a href="favoris.html">
         <img src="images/panier.png" alt="Panier">
     </a>
@@ -41,13 +41,11 @@
     </div>
 </div>
 
-
 <div class="favoris-container" id="favoris-container">
-    <p id="texte-aucun-favori" style="text-align:center; width: 100%; font-family: 'DM Serif Display'; display: none;">
+    <p id="texte-aucun-favori" style="text-align:center; width: 100%; font-family: 'DM Serif Display', serif; display: none;">
         Aucun favori enregistré.
     </p>
 </div>
-
 
 <div class="bouton-bas">
     <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
@@ -73,35 +71,55 @@
     document.addEventListener("click", function(event) {
         const dropdown = document.getElementById("lang-dropdown");
         const icon = document.getElementById("current-lang");
-        if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+        if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
             dropdown.style.display = "none";
         }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
         const langue = localStorage.getItem("langue") || "fr";
-        const commun = langue === "en" ? CommunEN : CommunFR;
-        const favorisTxt = langue === "en" ? FavorisEN : FavorisFR;
-        const bateauxData = langue === "en" ? bateauxEN : bateaux;
+        const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
+        const favorisTxt = langue === "en" ? (typeof FavorisEN !== "undefined" ? FavorisEN : {}) : (typeof FavorisFR !== "undefined" ? FavorisFR : {});
+        const bateauxData = langue === "en" ? (typeof bateauxEN !== "undefined" ? bateauxEN : []) : (typeof bateaux !== "undefined" ? bateaux : []);
 
         // Textes et langues
-        document.title = favorisTxt.titre;
-        document.getElementById("page-title").textContent = favorisTxt.titre;
-        document.getElementById("titre-page").textContent = favorisTxt.titre;
-        document.getElementById("lien-apropos").textContent = commun.info;
-        document.getElementById("lien-mentions").textContent = commun.mentions;
-        document.getElementById("lien-contact").textContent = commun.contact;
-        document.getElementById("compte-link").textContent = commun.compte;
+        if (favorisTxt.titre) {
+            document.title = favorisTxt.titre;
+            document.getElementById("page-title").textContent = favorisTxt.titre;
+            document.getElementById("titre-page").textContent = favorisTxt.titre;
+        }
 
+        if (commun.info) document.getElementById("lien-apropos").textContent = commun.info;
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
+
+        // Statut Utilisateur connecté & redirection
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const estConnecte = user && user.firstName;
+        const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
+
+        const compteLink = document.getElementById("compte-link");
+        if (compteLink) {
+            compteLink.setAttribute("href", pageCompteDestination);
+            if (estConnecte) {
+                compteLink.textContent = user.firstName;
+            } else if (commun.compte) {
+                compteLink.textContent = commun.compte;
+            }
+        }
+
+        // Génération du menu latéral avec destination dynamique
+        if (commun.menu) {
+            const menuContent = document.getElementById("menu-links");
+            const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
+            menuContent.innerHTML = commun.menu.map((item, index) => `<a href="${liens[index]}">${item}</a>`).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
+
+        // Drapeau et sélecteur de langue
         document.getElementById("current-lang").src = langue === "en" ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
         document.getElementById("lang-dropdown").innerHTML = langue === "en"
-            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" onclick="changerLangue('fr')">`
-            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" onclick="changerLangue('en')">`;
-
-
-        const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
-        const menuContent = document.getElementById("menu-links");
-        menuContent.innerHTML = commun.menu.map((item, index) => `<a href="${liens[index]}.html">${item}</a>`).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
         // Charger les favoris depuis le localStorage
         afficherFavoris(bateauxData, favorisTxt);
@@ -110,7 +128,7 @@
     function afficherFavoris(bateauxData, favorisTxt) {
         const container = document.getElementById("favoris-container");
         const texteAucun = document.getElementById("texte-aucun-favori");
-        texteAucun.textContent = favorisTxt.aucun;
+        if (favorisTxt.aucun) texteAucun.textContent = favorisTxt.aucun;
 
         const favorisIds = JSON.parse(localStorage.getItem("favoris") || "[]");
 
@@ -131,8 +149,8 @@
                     <img class="image-bateau" src="${bateau.image1}" alt="${bateau.titre}">
                     <h3 class="titre-bateau">${bateau.titre}</h3>
                     <p class="infos-bateau">${bateau.personnes} &bull; ${bateau.cabines || ''}</p>
-                    <a href="info-bateau.html?id=${bateau.id}" class="btn-voir">${favorisTxt.voir}</a>
-                    <button class="btn-retirer" onclick="retirerFavoriLocal(${bateau.id})">${favorisTxt.retirer}</button>
+                    <a href="info-bateau.html?id=${bateau.id}" class="btn-voir">${favorisTxt.voir || 'Voir'}</a>
+                    <button class="btn-retirer" onclick="retirerFavoriLocal(${bateau.id})">${favorisTxt.retirer || 'Retirer'}</button>
                 `;
                 container.appendChild(card);
             }

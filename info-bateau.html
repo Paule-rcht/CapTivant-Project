@@ -33,15 +33,7 @@
     </div>
 </div>
 <div id="menu-overlay" class="menu-overlay">
-    <div class="menu-content" id="menu-links">
-        <a href="location.html" id="menu-location">LOCATION</a>
-        <a href="ports.html" id="menu-ports">NOS PORTS</a>
-        <a href="MonCompte.html" id="menu-compte">MON COMPTE</a>
-        <a href="historique.html" id="menu-historique">HISTORIQUE</a>
-        <a href="faq.html" id="menu-faq">FAQ</a>
-        <a href="avis.html" id="menu-avis">AVIS</a>
-        <span onclick="toggleMenu()" class="close-menu">✕</span>
-    </div>
+    <div class="menu-content" id="menu-links"></div>
 </div>
 <div class="top-right">
     <div class="language-selector">
@@ -91,17 +83,28 @@
         const listeBateaux = langue === 'en' ? (typeof bateauxEN !== 'undefined' ? bateauxEN : []) : (typeof bateaux !== 'undefined' ? bateaux : []);
         const texte = langue === 'en' ? (typeof InfoBateauEN !== 'undefined' ? InfoBateauEN : {}) : (typeof InfoBateauFR !== 'undefined' ? InfoBateauFR : {});
 
-        // Utilisateur connecté
+        // Gestion de l'état connecté & destination dynamique
         const user = JSON.parse(localStorage.getItem("user") || "null");
+        const estConnecte = user && user.firstName;
+        const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
+
         const compteLink = document.getElementById("lien-compte");
         if (compteLink) {
-            if (user && user.firstName) {
+            compteLink.setAttribute("href", pageCompteDestination);
+            if (estConnecte) {
                 compteLink.textContent = user.firstName;
-                compteLink.setAttribute("href", "MonCompte.html");
             } else if (commun.compte) {
                 compteLink.textContent = commun.compte;
-                compteLink.setAttribute("href", "Connexion.html");
             }
+        }
+
+        // Génération dynamique du menu latéral
+        if (commun.menu) {
+            const menuContent = document.getElementById("menu-links");
+            const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
         }
 
         document.getElementById("current-lang").src = langue === 'en' ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
@@ -109,14 +112,6 @@
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-        if (commun.menu) {
-            document.getElementById("menu-location").textContent = commun.menu[0];
-            document.getElementById("menu-ports").textContent = commun.menu[1];
-            document.getElementById("menu-compte").textContent = commun.menu[2];
-            document.getElementById("menu-historique").textContent = commun.menu[3];
-            document.getElementById("menu-faq").textContent = commun.menu[4];
-            document.getElementById("menu-avis").textContent = commun.menu[5];
-        }
         if (commun.info) document.getElementById("menu-apropos").textContent = commun.info;
         if (commun.mentions) document.getElementById("footer-mentions").textContent = commun.mentions;
         if (commun.contact) document.getElementById("footer-contact").textContent = commun.contact;
@@ -172,6 +167,200 @@
         </div>`;
 
         // Événement clic pour afficher la pop-up des avis
+        document.getElementById("btn-popup-avis").addEventListener("click", function() {
+            afficherPopupAvis(bateau.titre, langue);
+        });
+
+        setTimeout(() => {
+            if (typeof ports !== 'undefined' && Array.isArray(ports)) {
+                const port = ports.find(p => p.name.toLowerCase() === bateau.port.toLowerCase());
+                if (port && document.getElementById('map')) {
+                    const map = L.map('map').setView(port.coords, 10);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    const popupContent = `
+                <divVoici le code mis à jour pour **`info-bateau.html`**. Il intègre la génération dynamique des liens du menu latéral avec la redirection vers `Connexion.html` lorsqu'aucun utilisateur n'est connecté.
+
+### Modications intégrées :
+1. **Redirection du menu latéral vers `Connexion.html`** : Si `user` n'est pas présent dans `localStorage`, l'élément "Mon Compte" du menu pointera vers `Connexion.html` au lieu de `MonCompte.html`.
+2. **Gestion complète de la session et traduction d'en-tête**.
+3. **Pop-up des avis et Leaflet bilingue** conservés.
+
+---
+
+```html
+                    <!DOCTYPE html>
+                    <html lang="fr">
+                        <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Détail du Bateau</title>
+                    <link rel="stylesheet" href="PageAccueil.css">
+                        <link rel="stylesheet" href="offre.css">
+                            <link rel="stylesheet" href="info-bateau.css">
+                                <link href="[https://fonts.googleapis.com/css2?family=Lobster&display=swap](https://fonts.googleapis.com/css2?family=Lobster&display=swap)" rel="stylesheet">
+                                    <link href="[https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap](https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap)" rel="stylesheet">
+                                        <link rel="stylesheet" href="[https://unpkg.com/leaflet@1.7.1/dist/leaflet.css](https://unpkg.com/leaflet@1.7.1/dist/leaflet.css)" />
+                                        <script src="[https://unpkg.com/leaflet@1.7.1/dist/leaflet.js](https://unpkg.com/leaflet@1.7.1/dist/leaflet.js)"></script>
+<script src="ports-info.js" defer></script>
+<script src="info-bateau.js" defer></script>
+</head>
+<body style="background-color: #c5d8d3;">
+
+<div class="top-left" onclick="toggleMenu()">
+    <img src="images/menu.png" alt="Menu">
+</div>
+<div class="top-left retour-offre">
+    <a href="offre.html" id="retour-offre" style="color: rgba(224,224,213,0.65)"></a>
+    <label id="titre-bateau-label" style="font-size: 0.85em; color: rgba(224,224,213,0.65); font-family: 'DM Serif Display', serif;"></label>
+</div>
+<div class="top-center">
+    <div class="logo-block">
+        <a href="PageAccueil.html">
+            <img src="images/logo.png" alt="Logo">
+        </a>
+        <p class="logo-slogan">Cap'Tivant</p>
+        <h1 class="page-title" id="titre-bateau" style="color: #e0e0d5;"></h1>
+    </div>
+</div>
+<div id="menu-overlay" class="menu-overlay">
+    <div class="menu-content" id="menu-links">
+        <span onclick="toggleMenu()" class="close-menu">✕</span>
+    </div>
+</div>
+<div class="top-right">
+    <div class="language-selector">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
+        <div id="lang-dropdown" class="lang-dropdown"></div>
+    </div>
+    <a href="a-propos.html" id="menu-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
+    <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
+    <a href="favoris.html"><img src="images/panier.png" alt="Panier"></a>
+</div>
+
+<div class="double-carrousel" id="contenu"></div>
+
+<div class="bouton-bas" style="background-color: transparent;">
+    <a href="MentionsLegales.html" id="footer-mentions" class="bottom-text">Mentions légales</a>
+    <span class="bottom-text">•</span>
+    <a href="Contact.html" id="footer-contact" class="bottom-text">Contact</a>
+</div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById("menu-overlay").classList.toggle("active");
+    }
+    function toggleLangDropdown() {
+        const dropdown = document.getElementById("lang-dropdown");
+        dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    }
+    function changerLangue(langue) {
+        localStorage.setItem("langue", langue);
+        location.reload();
+    }
+    function getLangue() {
+        return localStorage.getItem("langue") || "fr";
+    }
+
+    document.addEventListener("click", function(event) {
+        const dropdown = document.getElementById("lang-dropdown");
+        const icon = document.getElementById("current-lang");
+        if (dropdown && icon && !dropdown.contains(event.target) && !icon.contains(event.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+
+    window.onload = function () {
+        const langue = getLangue();
+        const commun = langue === 'en' ? (typeof CommunEN !== 'undefined' ? CommunEN : {}) : (typeof CommunFR !== 'undefined' ? CommunFR : {});
+        const listeBateaux = langue === 'en' ? (typeof bateauxEN !== 'undefined' ? bateauxEN : []) : (typeof bateaux !== 'undefined' ? bateaux : []);
+        const texte = langue === 'en' ? (typeof InfoBateauEN !== 'undefined' ? InfoBateauEN : {}) : (typeof InfoBateauFR !== 'undefined' ? InfoBateauFR : {});
+
+        // Utilisateur connecté & redirection dynamique
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const estConnecte = user && user.firstName;
+        const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
+
+        const compteLink = document.getElementById("lien-compte");
+        if (compteLink) {
+            compteLink.setAttribute("href", pageCompteDestination);
+            if (estConnecte) {
+                compteLink.textContent = user.firstName;
+            } else if (commun.compte) {
+                compteLink.textContent = commun.compte;
+            }
+        }
+
+        document.getElementById("current-lang").src = langue === 'en' ? "images/drapeau-anglais.png" : "images/drapeau-francais.png";
+        document.getElementById("lang-dropdown").innerHTML = langue === 'en'
+            ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
+            : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
+
+        // Génération du menu avec lien dynamique pour Mon Compte / Connexion
+        if (commun.menu) {
+            const menuContent = document.getElementById("menu-links");
+            const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
+            menuContent.innerHTML = commun.menu.map((item, index) => {
+                return `<a href="${liens[index]}">${item}</a>`;
+            }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+        }
+
+        if (commun.info) document.getElementById("menu-apropos").textContent = commun.info;
+        if (commun.mentions) document.getElementById("footer-mentions").textContent = commun.mentions;
+        if (commun.contact) document.getElementById("footer-contact").textContent = commun.contact;
+        if (texte.retour) document.getElementById("retour-offre").textContent = texte.retour + " >";
+
+        const params = new URLSearchParams(window.location.search);
+        const id = parseInt(params.get("id"));
+        const bateau = listeBateaux.find(b => b.id === id);
+        if (!bateau) {
+            document.getElementById("contenu").innerHTML = "<p style='text-align:center; margin-top:50px;'>Bateau non trouvé.</p>";
+            return;
+        }
+
+        const avisList = JSON.parse(localStorage.getItem("avis") || "[]");
+        const avisBateau = avisList.filter(a => a.titre === bateau.titre && !isNaN(a.etoiles));
+        const moyenne = avisBateau.length ? (avisBateau.reduce((acc, a) => acc + Number(a.etoiles), 0) / avisBateau.length).toFixed(1) : 0;
+        const avisText = avisBateau.length ? `⭐ ${moyenne}/5 (${avisBateau.length} ${langue === 'en' ? 'reviews' : 'avis'})` : `⭐ (0 ${langue === 'en' ? 'reviews' : 'avis'})`;
+
+        document.getElementById("titre-bateau").textContent = bateau.titre;
+        document.getElementById("titre-bateau-label").textContent = bateau.titre;
+
+        document.getElementById("contenu").innerHTML = `
+        <div class="detail-container">
+          <div class="bloc-gauche">
+            <div class="carrousel" data-id="${bateau.id}">
+              <button class="prev" onclick="changeSlide(this, -1)">❮</button>
+              <img src="${bateau.image1}" class="slide active">
+              ${bateau.image2 ? `<img src="${bateau.image2}" class="slide">` : ''}
+              <button class="next" onclick="changeSlide(this, 1)">❯</button>
+            </div>
+            <div class="texte-photo" style="color: floralwhite">
+              <p>
+                <span id="btn-popup-avis" style="cursor: pointer; text-decoration: underline;" title="Cliquer pour voir les avis">${avisText}</span>
+                <strong><a href="ports.html?port=${encodeURIComponent(bateau.port)}" style="margin-left: 80px; color: floralwhite;">${bateau.port}</a></strong>
+              </p>
+            </div>
+          </div>
+          <div class="background">
+            <p class="infos">${bateau.personnes}</p>
+            <p class="infos">${bateau.cabines}</p>
+            <p class="infos">${bateau.longueur}</p>
+          </div>
+          <div class="detail-infos">
+            <div class="carte-container"><div id="map"></div></div>
+          </div>
+        </div>
+        <div class="detail-footer">
+          <p class="detail-prix">${bateau.prix}</p>
+          <div class="boutons-actions">
+            <a href="payement.html?id=${bateau.id}" class="btn-reserver">${texte.reserver || 'Réserver'}</a>
+            <button class="btn-favoris" onclick="ajouterAuxFavoris(${bateau.id})">${texte.favori || 'Favoris'}</button>
+          </div>
+        </div>`;
+
         document.getElementById("btn-popup-avis").addEventListener("click", function() {
             afficherPopupAvis(bateau.titre, langue);
         });
