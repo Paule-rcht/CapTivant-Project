@@ -56,7 +56,7 @@
         .champ-ligne input[type="email"],
         .champ-ligne input[type="password"] {
             width: 100%;
-            padding: 12px 40px 12px 16px;
+            padding: 12px 45px 12px 16px;
             border-radius: 20px;
             border: 1px solid #ffffff;
             background-color: rgba(255, 255, 255, 0.85);
@@ -73,19 +73,59 @@
             width: auto;
         }
 
-        .toggle-password {
+        .toggle-password-btn {
             position: absolute;
-            right: 15px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
+            background: none;
+            border: none;
+            font-size: 1.2em;
             cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            user-select: none;
             opacity: 0.7;
+            transition: opacity 0.2s ease;
         }
 
-        .toggle-password:hover {
+        .toggle-password-btn:hover {
             opacity: 1;
+        }
+
+        /* Captcha Styles */
+        .captcha-box {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 12px 16px;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .captcha-challenge {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'DM Serif Display', serif;
+            color: #335533;
+            font-size: 1.05em;
+        }
+
+        .captcha-question {
+            background: #e8f0ec;
+            padding: 4px 12px;
+            border-radius: 8px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .btn-refresh-captcha {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
         }
 
         .conditions-block {
@@ -182,13 +222,28 @@
         <div class="champ-ligne">
             <span class="etoile-rouge">*</span>
             <input type="password" id="mdp" placeholder="Entrez votre mot de passe" required>
-            <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp')">
+            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('mdp', this)" title="Afficher/Masquer le mot de passe">🙈</button>
         </div>
 
         <div class="champ-ligne">
             <span class="etoile-rouge">*</span>
             <input type="password" id="mdp-confirm" placeholder="Confirmez votre mot de passe" required>
-            <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp-confirm')">
+            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('mdp-confirm', this)" title="Afficher/Masquer le mot de passe">🙈</button>
+        </div>
+
+        <!-- Section Captcha -->
+        <div class="captcha-box">
+            <div class="captcha-challenge">
+                <span id="label-captcha">Sécurité Captcha :</span>
+                <div>
+                    <span id="captcha-question" class="captcha-question">...</span>
+                    <button type="button" class="btn-refresh-captcha" onclick="genererCaptcha()" title="Changer de question">🔄</button>
+                </div>
+            </div>
+            <div class="champ-ligne">
+                <span class="etoile-rouge">*</span>
+                <input type="text" id="captcha-answer" placeholder="Résultat du calcul" required autocomplete="off">
+            </div>
         </div>
 
         <div class="conditions-block" style="margin-top: 10px;">
@@ -230,6 +285,16 @@
 </div>
 
 <script>
+    let reponseCaptcha = 0;
+
+    function genererCaptcha() {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        reponseCaptcha = num1 + num2;
+        document.getElementById("captcha-question").textContent = `${num1} + ${num2} = ?`;
+        document.getElementById("captcha-answer").value = "";
+    }
+
     function toggleMenu() {
         const menu = document.getElementById("menu-overlay");
         menu.classList.toggle("active");
@@ -254,6 +319,8 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
+        genererCaptcha();
+
         const langue = localStorage.getItem("langue") || "fr";
         const texte = langue === "en" ? (typeof InscriptionEN !== "undefined" ? InscriptionEN : {}) : (typeof InscriptionFR !== "undefined" ? InscriptionFR : {});
         const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
@@ -310,17 +377,14 @@
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
     });
 
-    function togglePasswordVisibility(inputId) {
+    function togglePasswordVisibility(inputId, btn) {
         const input = document.getElementById(inputId);
-        const icon = input.parentElement.querySelector(".toggle-password");
         if (input.type === "password") {
             input.type = "text";
-            icon.src = "images/eye-open.png";
-            icon.alt = "Masquer mot de passe";
+            btn.textContent = "👁️";
         } else {
             input.type = "password";
-            icon.src = "images/eye-closed.png";
-            icon.alt = "Afficher mot de passe";
+            btn.textContent = "🙈";
         }
     }
 
@@ -332,6 +396,7 @@
         const email = document.getElementById("email").value.trim();
         const mdp = document.getElementById("mdp").value;
         const mdpConfirm = document.getElementById("mdp-confirm").value;
+        const captchaAnswer = parseInt(document.getElementById("captcha-answer").value.trim(), 10);
         const mentions = document.getElementById("mentions").checked;
         const errorMsg = document.getElementById("error-message");
 
@@ -346,6 +411,13 @@
         if (mdp !== mdpConfirm) {
             errorMsg.textContent = langue === "en" ? "Passwords do not match." : "Les mots de passe ne correspondent pas.";
             errorMsg.style.display = "block";
+            return;
+        }
+
+        if (isNaN(captchaAnswer) || captchaAnswer !== reponseCaptcha) {
+            errorMsg.textContent = langue === "en" ? "Incorrect Captcha answer. Please try again." : "Réponse au Captcha incorrecte. Veuillez réespérer.";
+            errorMsg.style.display = "block";
+            genererCaptcha();
             return;
         }
 

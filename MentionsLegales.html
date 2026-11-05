@@ -2,17 +2,57 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title id="page-title">Mentions légales</title>
+    <title id="page-title">Mentions légales - Cap'Tivant</title>
     <link rel="stylesheet" href="PageAccueil.css">
     <link rel="stylesheet" href="MentionsLegales.css">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <script src="info-bateau.js" defer></script>
+    <style>
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+
+        .texte-legale h2 {
+            color: #577550;
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(87, 117, 80, 0.3);
+            padding-bottom: 4px;
+        }
+
+        .texte-legale p, .texte-legale ul {
+            font-size: 0.9em;
+            line-height: 1.6em;
+            margin-bottom: 12px;
+            color: #2c422a;
+        }
+
+        .texte-legale ul {
+            padding-left: 20px;
+        }
+
+        .bouton-bas {
+            position: relative;
+            margin-top: 40px;
+            padding: 20px 0;
+            text-align: center;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            background-color: transparent;
+        }
+    </style>
 </head>
 <body style="background-color: #c5d8d3;">
 
 <div class="top-left" onclick="toggleMenu()">
-    <img src="images/menu-vert.png" alt="Menu">
+    <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -20,37 +60,36 @@
 </div>
 
 <div class="top-right">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <div class="language-selector">
-            <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
-            <div id="lang-dropdown" class="lang-dropdown" style="position: absolute;"></div>
-        </div>
-
-        <a id="a-propos-link" href="a-propos.html" style="color: #577550; text-decoration: none; white-space: nowrap;">À propos</a>
-        <a id="mon-compte-link" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
-        <a href="favoris.html">
-            <img src="images/panier.png" alt="Panier" style="min-width: 20px;">
-        </a>
+    <div class="language-selector">
+        <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
+        <div id="lang-dropdown" class="lang-dropdown" style="position: absolute;"></div>
     </div>
+
+    <a id="a-propos-link" href="a-propos.html" style="color: #e0e0d5; text-decoration: none; white-space: nowrap;">À propos</a>
+    <a id="mon-compte-link" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
+    <a href="favoris.html">
+        <img src="images/panier.png" alt="Panier" style="min-width: 20px;">
+    </a>
 </div>
 
 <div class="top-center">
     <div class="logo-block">
         <a href="PageAccueil.html">
-            <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
+            <img src="images/logo.png" alt="Logo">
         </a>
         <p class="logo-slogan">Cap'Tivant</p>
         <h1 class="page-title" id="titre-page">Mentions légales</h1>
     </div>
 
-    <div id="texte-legale" class="texte-legale" style="max-width: 800px; margin-top: 100px; padding: 20px; font-family: 'DM Serif Display', serif; font-size: 0.95em; line-height: 1.6em; color: #335533; text-align: justify;">
+    <div id="texte-legale" class="texte-legale" style="max-width: 800px; margin: 40px auto; padding: 30px; background: rgba(255, 255, 255, 0.85); border-radius: 12px; font-family: 'DM Serif Display', serif; text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <!-- Les mentions légales détaillées sont injectées dynamiquement par JS selon la langue -->
     </div>
 </div>
 
 <div class="bouton-bas">
+    <a id="lien-mentions" href="MentionsLegales.html" class="bottom-text" style="color: #577550">Mentions légales</a>
     <span class="bottom-text" style="color: #577550">&bull;</span>
     <a id="lien-contact" href="Contact.html" class="bottom-text" style="color: #577550">Contact</a>
-    <span class="bottom-text" style="color: #577550">&bull;</span>
 </div>
 
 <script>
@@ -83,25 +122,60 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         const langue = getLangue();
-        const texte = langue === "en" ? (typeof MentionsEN !== "undefined" ? MentionsEN : {}) : (typeof MentionsFR !== "undefined" ? MentionsFR : {});
         const commun = langue === "en" ? (typeof CommunEN !== "undefined" ? CommunEN : {}) : (typeof CommunFR !== "undefined" ? CommunFR : {});
 
-        if (texte.titre) {
-            document.getElementById("page-title").textContent = texte.titre;
-            document.getElementById("titre-page").textContent = texte.titre;
-        }
+        document.getElementById("page-title").textContent = langue === "en" ? "Legal Notice - Cap'Tivant" : "Mentions légales - Cap'Tivant";
+        document.getElementById("titre-page").textContent = langue === "en" ? "Legal Notice" : "Mentions légales";
 
         const conteneurTexte = document.getElementById("texte-legale");
-        if (texte.texte) {
-            conteneurTexte.innerHTML = texte.texte;
+
+        if (langue === "en") {
+            conteneurTexte.innerHTML = `
+                <h2>1. Website Publisher</h2>
+                <p>The <strong>Cap'Tivant</strong> website is published by the simplified joint-stock company (SAS) <strong>Cap'Tivant Services</strong>, with a capital of €50,000, registered with the Trade and Companies Register under number RCS Brest B 892 741 052.</p>
+                <p><strong>Headquarters:</strong> 12 Quai de la Douane, 29200 Brest, France<br>
+                <strong>Email:</strong> captivant@gmail.com<br>
+                <strong>Phone:</strong> +33 (0)2 98 00 11 22<br>
+                <strong>Director of Publication:</strong> Paule Rocher</p>
+
+                <h2>2. Hosting Provider</h2>
+                <p>The site is hosted by <strong>GitHub Pages</strong> (GitHub Inc.), 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA.</p>
+
+                <h2>3. Intellectual Property</h2>
+                <p>All elements on the site (texts, images, logos, vectors, software) are the exclusive property of Cap'Tivant SAS. Any reproduction, distribution, or alteration without prior written authorization is strictly prohibited.</p>
+
+                <h2>4. Personal Data & Privacy</h2>
+                <p>In accordance with the General Data Protection Regulation (GDPR), user data collected (name, email, booking history) is stored locally in your browser (via LocalStorage) or used strictly for account management. You have the right to access, rectify, or delete your data at any time through your personal account or by emailing us at captivant@gmail.com.</p>
+
+                <h2>5. Cookies & Local Storage</h2>
+                <p>This application uses browser LocalStorage to store your preferences (language, active user session, favorites) without using invasive tracking cookies.</p>
+            `;
         } else {
-            conteneurTexte.innerHTML = langue === "en"
-                ? "<p>Cap'Tivant is a boat rental platform. All rights reserved.</p>"
-                : "<p>Cap'Tivant est une plateforme de location de bateaux. Tous droits réservés.</p>";
+            conteneurTexte.innerHTML = `
+                <h2>1. Éditeur du site</h2>
+                <p>Le site <strong>Cap'Tivant</strong> est édité par la société par actions simplifiée (SAS) <strong>Cap'Tivant Services</strong> au capital de 50 000 €, immatriculée au Registre du Commerce et des Sociétés sous le numéro RCS Brest B 892 741 052.</p>
+                <p><strong>Siège social :</strong> 12 Quai de la Douane, 29200 Brest, France<br>
+                <strong>Adresse e-mail :</strong> captivant@gmail.com<br>
+                <strong>Téléphone :</strong> 02 98 00 11 22<br>
+                <strong>Directrice de la publication :</strong> Paule Rocher</p>
+
+                <h2>2. Hébergement du site</h2>
+                <p>Le site est hébergé par la plateforme <strong>GitHub Pages</strong> (GitHub Inc.), domiciliée au 88 Colin P Kelly Jr St, San Francisco, CA 94107, États-Unis.</p>
+
+                <h2>3. Propriété intellectuelle</h2>
+                <p>L'ensemble de ce site (textes, graphismes, logos, photos, vidéos, icônes) est la propriété exclusive de la société Cap'Tivant SAS. Toute reproduction, représentation, modification ou adaptation intégrale ou partielle est strictement interdite sans accord écrit préalable.</p>
+
+                <h2>4. Données personnelles & RGPD</h2>
+                <p>Conformément au Règlement Général sur la Protection des Données (RGPD), les informations collectées lors de la réservation ou de la création de compte (nom, prénom, e-mail, historique) sont conservées localement dans votre navigateur via `localStorage`. Vous disposez d'un droit d'accès, de rectification et de suppression de vos données en modifiant votre espace « Mon Compte » ou par simple e-mail à captivant@gmail.com.</p>
+
+                <h2>5. Cookies et Stockage Local</h2>
+                <p>Ce site utilise le stockage local (`localStorage`) du navigateur pour conserver vos préférences (langue choisie, favoris, panier, état de connexion) sans recourir à des cookies traceurs tiers à visée publicitaire.</p>
+            `;
         }
 
         if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
         if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
+        if (commun.mentions) document.getElementById("lien-mentions").textContent = commun.mentions;
 
         // Statut Utilisateur connecté & redirection dynamique
         const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -125,7 +199,7 @@
             ? `<img src="images/drapeau-francais.png" alt="Français" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('fr')">`
             : `<img src="images/drapeau-anglais.png" alt="Anglais" class="drapeau-option" style="cursor:pointer;" onclick="changerLangue('en')">`;
 
-        // Génération du menu avec destination dynamique
+        // Génération du menu latéral avec destination dynamique
         if (commun.menu) {
             const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
             const menuContent = document.getElementById("menu-links");
