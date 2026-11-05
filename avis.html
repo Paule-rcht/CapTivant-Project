@@ -13,7 +13,7 @@
 <body style="background-color: #c5d8d3; display: flex; flex-direction: column; min-height: 100vh;">
 
 <div class="top-left" onclick="toggleMenu()">
-  <img src="images/menu-vert.png" alt="Menu">
+  <img src="images/menu.png" alt="Menu">
 </div>
 
 <div id="menu-overlay" class="menu-overlay">
@@ -23,10 +23,10 @@
 <div class="top-center">
   <div class="logo-block">
     <a href="PageAccueil.html">
-      <img src="images/logo-transparent.png" alt="Logo" style="width: 30px;">
+      <img src="images/logo.png" alt="Logo">
     </a>
     <p class="logo-slogan">Cap'Tivant</p>
-    <h1 class="page-title" id="titre-page" style="color: #577550">Avis</h1>
+    <h1 class="page-title" id="titre-page" style="color: #e0e0d5">Avis</h1>
   </div>
 </div>
 
@@ -35,8 +35,8 @@
     <img id="current-lang" src="images/drapeau-francais.png" alt="Langue" onclick="toggleLangDropdown()" class="drapeau-icon" style="cursor: pointer;">
     <div id="lang-dropdown" class="lang-dropdown"></div>
   </div>
-  <a href="a-propos.html" id="lien-apropos" style="color: #577550; text-decoration: none;">À propos</a>
-  <a id="lien-compte" href="Connexion.html" style="color: #577550; text-decoration: none;">Mon Compte</a>
+  <a href="a-propos.html" id="lien-apropos" style="color: #e0e0d5; text-decoration: none;">À propos</a>
+  <a id="lien-compte" href="Connexion.html" style="color: #e0e0d5; text-decoration: none;">Mon Compte</a>
   <a href="favoris.html"><img src="images/panier.png" alt="Panier"></a>
 </div>
 
@@ -44,10 +44,10 @@
   <div id="avis-container" style="width: 100%; max-width: 600px; padding: 0 20px;"></div>
 </main>
 
-<div class="bouton-bas" style="background: transparent; padding: 20px 0">
-  <a href="MentionsLegales.html" id="lien-mentions" style="color: #577550;" class="bottom-text">Mentions légales</a>
+<div class="bouton-bas" style="background: transparent; padding: 20px 0;">
+  <a href="MentionsLegales.html" id="lien-mentions" class="bottom-text">Mentions légales</a>
   <span class="bottom-text">•</span>
-  <a href="Contact.html" id="lien-contact" style="color: #577550;" class="bottom-text">Contact</a>
+  <a href="Contact.html" id="lien-contact" class="bottom-text">Contact</a>
 </div>
 
 <script>
@@ -80,22 +80,27 @@
     if (texteCommun.mentions) document.getElementById("lien-mentions").textContent = texteCommun.mentions;
     if (texteCommun.contact) document.getElementById("lien-contact").textContent = texteCommun.contact;
 
+    // Gestion du statut Utilisateur connecté & redirection
     const user = JSON.parse(localStorage.getItem("user") || "null");
-    const lienCompteDestination = (user && user.firstName) ? "MonCompte.html" : "Connexion.html";
+    const estConnecte = user && user.firstName;
+    const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
 
-    if (texteCommun.menu) {
-      const menuContent = document.getElementById("menu-links");
-      const liens = ["location.html", "ports.html", lienCompteDestination, "historique.html", "faq.html", "avis.html"];
-      menuContent.innerHTML = texteCommun.menu.map((item, index) => {
-        return `<a href="${liens[index]}">${item}</a>`;
-      }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
+    const lienCompte = document.getElementById("lien-compte");
+    if (lienCompte) {
+      lienCompte.setAttribute("href", pageCompteDestination);
+      if (estConnecte) {
+        lienCompte.textContent = user.firstName;
+      } else if (texteCommun.compte) {
+        lienCompte.textContent = texteCommun.compte;
+      }
     }
 
+    // Génération du menu avec lien dynamique vers Connexion.html ou MonCompte.html
     if (texteCommun.menu) {
       const menuContent = document.getElementById("menu-links");
-      const liens = ["location", "ports", "MonCompte", "historique", "faq", "avis"];
+      const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
       menuContent.innerHTML = texteCommun.menu.map((item, index) => {
-        return `<a href="${liens[index]}.html">${item}</a>`;
+        return `<a href="${liens[index]}">${item}</a>`;
       }).join('') + '<span onclick="toggleMenu()" class="close-menu">✕</span>';
     }
 
