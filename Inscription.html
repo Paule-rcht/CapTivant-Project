@@ -8,8 +8,125 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <script src="info-bateau.js" defer></script>
+    <style>
+        body {
+            background-color: #c5d8d3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        main.contenu-scrollable {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 80px 20px;
+            box-sizing: border-box;
+        }
+
+        .formulaire-inscription {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .champ-ligne {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+        }
+
+        .etoile-rouge {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 1.2em;
+            width: 15px;
+            text-align: right;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .champ-ligne input[type="text"],
+        .champ-ligne input[type="email"],
+        .champ-ligne input[type="password"] {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border-radius: 20px;
+            border: 1px solid #ffffff;
+            background-color: rgba(255, 255, 255, 0.85);
+            font-size: 0.95em;
+            outline: none;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        .icone-centree {
+            display: block;
+            margin: 10px auto 4px auto;
+            height: 24px;
+            width: auto;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .toggle-password:hover {
+            opacity: 1;
+        }
+
+        .conditions-block {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #335533;
+            margin-top: 5px;
+        }
+
+        .btn-inscription-submit {
+            background-color: #577550;
+            color: white;
+            padding: 12px;
+            border-radius: 20px;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.1em;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background 0.2s ease;
+        }
+
+        .btn-inscription-submit:hover {
+            background-color: #445d3e;
+        }
+
+        .bouton-bas {
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            background-color: transparent;
+        }
+    </style>
 </head>
-<body style="background-color: #c5d8d3;">
+<body>
+
 <div class="top-left" onclick="toggleMenu()">
     <img src="images/menu-vert.png" alt="Menu">
 </div>
@@ -40,80 +157,69 @@
     </div>
 </div>
 
-<main class="contenu-scrollable" style="margin-top: 140px;">
+<main class="contenu-scrollable">
     <form onsubmit="traiterInscription(event)" class="formulaire-inscription">
-        <div class="champ">
-            <br>
-            <div class="champ-obligatoire">
-                <span class="etoile">*</span>
-                <input type="text" id="nom" placeholder="Nom" required>
-            </div>
 
-            <div class="champ-obligatoire">
-                <span class="etoile">*</span>
-                <input type="text" id="prenom" placeholder="Prénom" required>
-            </div>
-
-            <img src="images/email.png" alt="email">
-
-            <div class="champ-obligatoire">
-                <span class="etoile">*</span>
-                <input type="email" id="email" placeholder="Entrez votre adresse mail" required>
-            </div>
-
-            <img src="images/mdp.png" alt="mot de passe">
-
-            <div class="champ-obligatoire">
-                <span class="etoile" style="margin-left: 30px">*</span>
-                <div class="password-container" style="display: flex; align-items: center; width: 100%;">
-                    <input style="margin-left: 30px; flex-grow: 1;" type="password" id="mdp" placeholder="Entrez votre mot de passe" required>
-                    <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp')" style="cursor: pointer;">
-                </div>
-            </div>
-
-            <div class="champ-obligatoire">
-                <span class="etoile" style="margin-left: 30px">*</span>
-                <div class="password-container" style="display: flex; align-items: center; width: 100%;">
-                    <input style="margin-left: 30px; flex-grow: 1;" type="password" id="mdp-confirm" placeholder="Confirmez votre mot de passe" required>
-                    <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp-confirm')" style="cursor: pointer;">
-                </div>
-            </div>
+        <div class="champ-ligne">
+            <span class="etoile-rouge">*</span>
+            <input type="text" id="nom" placeholder="Nom" required>
         </div>
 
-        <div class="conditions-general">
-            <div class="champ-obligatoire">
-                <span class="etoile">*</span>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="mentions" required>
-                    <span class="checkmark"></span>
-                    <span class="conditions" id="conditions-text">Accepter les conditions d'utilisations</span>
-                </label>
-            </div>
+        <div class="champ-ligne">
+            <span class="etoile-rouge">*</span>
+            <input type="text" id="prenom" placeholder="Prénom" required>
         </div>
-        <div class="conditions-general">
-            <label class="checkbox-container">
-                <input type="checkbox" id="newsletter">
-                <span class="checkmark"></span>
-                <span class="conditions" id="newsletter-text">Je souhaite m'inscrire à la newsletter</span>
+
+        <img src="images/email.png" alt="email" class="icone-centree">
+
+        <div class="champ-ligne">
+            <span class="etoile-rouge">*</span>
+            <input type="email" id="email" placeholder="Entrez votre adresse mail" required>
+        </div>
+
+        <img src="images/mdp.png" alt="mot de passe" class="icone-centree">
+
+        <div class="champ-ligne">
+            <span class="etoile-rouge">*</span>
+            <input type="password" id="mdp" placeholder="Entrez votre mot de passe" required>
+            <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp')">
+        </div>
+
+        <div class="champ-ligne">
+            <span class="etoile-rouge">*</span>
+            <input type="password" id="mdp-confirm" placeholder="Confirmez votre mot de passe" required>
+            <img src="images/eye-closed.png" alt="Afficher mot de passe" class="toggle-password" onclick="togglePasswordVisibility('mdp-confirm')">
+        </div>
+
+        <div class="conditions-block" style="margin-top: 10px;">
+            <span class="etoile-rouge">*</span>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="mentions" required>
+                <span id="conditions-text">Accepter les conditions d'utilisations</span>
             </label>
         </div>
 
-        <div class="conditions-general">
-            <br>
-            <button type="submit" class="inscription" id="btn-inscription" style="border: none; cursor: pointer;">S'inscrire</button>
+        <div class="conditions-block">
+            <span class="etoile-rouge" style="visibility: hidden;">*</span>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="newsletter">
+                <span id="newsletter-text">Je souhaite m'inscrire à la newsletter</span>
+            </label>
         </div>
+
+        <button type="submit" class="btn-inscription-submit" id="btn-inscription">S'inscrire</button>
+
     </form>
 
-    <p id="error-message" style="color: red; text-align: center; display: none; margin-top: 10px;"></p>
+    <p id="error-message" style="color: #d9534f; text-align: center; display: none; margin-top: 12px; font-weight: bold;"></p>
 
-    <div class="logo-block" style="font-size: 1.2em; text-align: center; margin-top: 15px;">
-        <a href="Connexion.html" class="connexion" id="lien-connexion" style="color: #577550; font-weight: bold;">Se connecter</a>
+    <div style="text-align: center; margin-top: 15px;">
+        <a href="Connexion.html" id="lien-connexion" style="color: #ee9c72; text-decoration: none; font-weight: bold; font-family: 'DM Serif Display', serif; font-size: 1.1em;">Se connecter</a>
     </div>
-    <div class="conditions-general">
-        <div class="champ-obligatoire">
-            <span class="etoile">*</span>
-            <span class="conditions" id="champs">Ce champ est obligatoire</span>
-        </div>
+
+    <div class="conditions-block" style="margin-top: 10px; font-size: 0.85em; opacity: 0.8;">
+        <span class="etoile-rouge">*</span>
+        <span id="champs">Ce champ est obligatoire</span>
     </div>
 </main>
 
@@ -173,7 +279,7 @@
         if (commun.contact) document.getElementById("lien-contact").textContent = commun.contact;
         if (commun.info) document.getElementById("a-propos-link").textContent = commun.info;
 
-        // Gestion de l'état connecté & redirection dynamique
+        // Session utilisateur & redirection
         const user = JSON.parse(localStorage.getItem("user") || "null");
         const estConnecte = user && user.firstName;
         const pageCompteDestination = estConnecte ? "MonCompte.html" : "Connexion.html";
@@ -188,7 +294,7 @@
             }
         }
 
-        // Génération dynamique du menu latéral
+        // Menu latéral
         if (commun.menu) {
             const menuContent = document.getElementById("menu-links");
             const liens = ["location.html", "ports.html", pageCompteDestination, "historique.html", "faq.html", "avis.html"];
@@ -206,7 +312,7 @@
 
     function togglePasswordVisibility(inputId) {
         const input = document.getElementById(inputId);
-        const icon = document.querySelector(`[onclick="togglePasswordVisibility('${inputId}')"]`);
+        const icon = input.parentElement.querySelector(".toggle-password");
         if (input.type === "password") {
             input.type = "text";
             icon.src = "images/eye-open.png";
@@ -249,7 +355,6 @@
             return;
         }
 
-        // Création et enregistrement de l'utilisateur dans localStorage
         const userObj = {
             lastName: nom,
             firstName: prenom,
